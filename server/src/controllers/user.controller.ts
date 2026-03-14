@@ -2,8 +2,8 @@ import * as z from "zod";
 import type { Request, Response } from "express";
 import bcrypt, { genSalt } from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { prisma } from "../lib/prisma.js";
-import { userSignupSchema, userSignInSchema } from "../schemas/auth.schema.js";
+import { prisma } from "../lib/prisma";
+import { userSignupSchema, userSignInSchema } from "../schemas/auth.schema";
 
 import { JWT_SECRET } from "../config/env.js";
 
