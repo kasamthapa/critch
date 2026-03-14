@@ -7,6 +7,8 @@ import { userSignupSchema, userSignInSchema } from "../schemas/auth.schema";
 import { asyncHandler } from "../utils/asyncHandler";
 import { JWT_SECRET } from "../config/env.js";
 import { ApiError } from "../utils/ApiError";
+import app from "../app";
+import { ApiResponse } from "../utils/ApiResponse";
 
 export const userSignupController = async (req: Request, res: Response) => {
   const { username, email, password } = userSignupSchema.parse(req.body);
@@ -29,10 +31,9 @@ export const userSignupController = async (req: Request, res: Response) => {
       created_at: true,
     },
   });
-  res.status(200).json({
-    message: "user signed up successfully",
-    user,
-  });
+  res
+    .status(200)
+    .json(new ApiResponse(200, "user signed up successfully", { user }));
 };
 
 export const userSignInController = async (req: Request, res: Response) => {
@@ -59,16 +60,20 @@ export const userSignInController = async (req: Request, res: Response) => {
     JWT_SECRET,
     { expiresIn: "7d" },
   );
-  res.status(200).json({
-    message: "User signed in successfully",
-    token,
-    User: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      bio: user.bio,
-      avatar: user.avatarURL,
-      reputationScore: user.reputationScore,
-    },
-  });
+  const userResponse = {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    bio: user.bio,
+    avatar: user.avatarURL,
+    reputationScore: user.reputationScore,
+  };
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      "User signed in successfully",
+      { user: userResponse, token }, // Wraping both in the 'data' object
+    ),
+  );
 };
