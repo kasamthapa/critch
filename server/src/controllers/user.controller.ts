@@ -9,6 +9,8 @@ import { JWT_SECRET } from "../config/env.js";
 import { ApiError } from "../utils/ApiError";
 import app from "../app";
 import { ApiResponse } from "../utils/ApiResponse";
+import { generateAccessToken, generateRefreshToken } from "../utils/tokenGen";
+import { JwtPayload } from "../types/jwtPayload";
 
 export const userSignupController = async (req: Request, res: Response) => {
   const { username, email, password } = userSignupSchema.parse(req.body);
@@ -53,13 +55,9 @@ export const userSignInController = async (req: Request, res: Response) => {
     throw new ApiError(401, "Invalid email or password");
   }
 
-  const token = jwt.sign(
-    {
-      id: user.id,
-    },
-    JWT_SECRET,
-    { expiresIn: "7d" },
-  );
+  const accesstoken = generateAccessToken(user.id.toString());
+  const refreshToken = generateRefreshToken(user.id.toString());
+
   const userResponse = {
     id: user.id,
     username: user.username,
@@ -69,11 +67,33 @@ export const userSignInController = async (req: Request, res: Response) => {
     reputationScore: user.reputationScore,
   };
 
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    path: "/api/v1/auth/refresh",
+  });
+
   res.status(200).json(
     new ApiResponse(
       200,
       "User signed in successfully",
-      { user: userResponse, token }, // Wraping both in the 'data' object
+      { user: userResponse, accesstoken }, // Wraping both in the 'data' object
     ),
+  );
+};
+
+export const refreshTokenController = async (req: Request, res: Response) => {
+  const RefreshToken = req.cookies.refreshToken;
+
+  if (!RefreshToken) {
+    throw new ApiError(404, "Refresh token not found");
+  }
+  const decoded = jwt.verify(RefreshToken, JWT_SECRET) as JwtPayload;
+
+  const newAccessToken = generateAccessToken(decoded.userId);
+
+  res.json(
+    new ApiResponse(200, "new access token generated", { newAccessToken }),
   );
 };
