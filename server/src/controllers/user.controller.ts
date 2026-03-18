@@ -11,6 +11,7 @@ import app from "../app";
 import { ApiResponse } from "../utils/ApiResponse";
 import { generateAccessToken, generateRefreshToken } from "../utils/tokenGen";
 import { JwtPayload } from "../types/jwtPayload";
+import { CustomRequest } from "../types/customRequest";
 
 export const userSignupController = async (req: Request, res: Response) => {
   const { username, email, password } = userSignupSchema.parse(req.body);
@@ -96,4 +97,21 @@ export const refreshTokenController = async (req: Request, res: Response) => {
   res.json(
     new ApiResponse(200, "new access token generated", { newAccessToken }),
   );
+};
+
+export const getCurrentUser = async (req: CustomRequest, res: Response) => {
+  const user = req.user;
+  const userId = user?.userId;
+  const userData = await prisma.user.findUnique({
+    where: {
+      id: Number(userId),
+    },
+    select: {
+      username: true,
+      email: true,
+      reputationScore: true,
+    },
+  });
+
+  res.json(new ApiResponse(200, "User authorized", { userData }));
 };
