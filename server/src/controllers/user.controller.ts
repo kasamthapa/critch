@@ -12,6 +12,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { generateAccessToken, generateRefreshToken } from "../utils/tokenGen";
 import { JwtPayload } from "../types/jwtPayload";
 import { CustomRequest } from "../types/customRequest";
+import { primitiveTypes } from "zod/v4/core/util.cjs";
 
 export const userSignupController = async (req: Request, res: Response) => {
   const { username, email, password } = userSignupSchema.parse(req.body);
@@ -58,6 +59,15 @@ export const userSignInController = async (req: Request, res: Response) => {
 
   const accesstoken = generateAccessToken(user.id.toString());
   const refreshToken = generateRefreshToken(user.id.toString());
+  const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+  await prisma.refreshToken.create({
+    data: {
+      user_id: user.id,
+      token: hashedRefreshToken,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60),
+    },
+  });
 
   const userResponse = {
     id: user.id,
@@ -91,6 +101,18 @@ export const refreshTokenController = async (req: Request, res: Response) => {
     throw new ApiError(404, "Refresh token not found");
   }
   const decoded = jwt.verify(RefreshToken, JWT_SECRET) as JwtPayload;
+  const hashedRefreshToken = await bcrypt.hash(RefreshToken, 10);
+  const isPresentInDB = await prisma.refreshToken.findFirst({
+    where: {
+      user_id: Number(decoded.userId),
+    },
+    select: {
+      token: true,
+    },
+  });
+  if (!isPresentInDB) {
+    throw new ApiError(401, "Invalid Token");
+  }
 
   const newAccessToken = generateAccessToken(decoded.userId);
 
@@ -98,6 +120,8 @@ export const refreshTokenController = async (req: Request, res: Response) => {
     new ApiResponse(200, "new access token generated", { newAccessToken }),
   );
 };
+
+export const logoutController = async (req: Request, res: Response) => {};
 
 export const getCurrentUser = async (req: CustomRequest, res: Response) => {
   const user = req.user;
