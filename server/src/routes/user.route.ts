@@ -2,6 +2,7 @@ import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import {
   getCurrentUser,
+  logoutController,
   refreshTokenController,
   userSignInController,
   userSignupController,
@@ -13,5 +14,6 @@ router.post("/signup", asyncHandler(userSignupController));
 router.post("/signin", asyncHandler(userSignInController));
 router.post("/refresh", asyncHandler(refreshTokenController));
 router.get("/me", authMiddleware, asyncHandler(getCurrentUser));
+router.post("/logout", authMiddleware, asyncHandler(logoutController));
 
 export default router;

@@ -82,7 +82,7 @@ export const userSignInController = async (req: Request, res: Response) => {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
-    path: "/api/v1/auth/refresh",
+    path: "/",
   });
 
   res.status(200).json(
@@ -121,7 +121,25 @@ export const refreshTokenController = async (req: Request, res: Response) => {
   );
 };
 
-export const logoutController = async (req: Request, res: Response) => {};
+export const logoutController = async (req: CustomRequest, res: Response) => {
+  const userId = req.user?.userId;
+  if (userId) {
+    await prisma.refreshToken.deleteMany({
+      where: {
+        user_id: Number(userId),
+      },
+    });
+  }
+
+  res
+    .clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/",
+    })
+    .json({ message: "User Logged out Successfully" });
+};
 
 export const getCurrentUser = async (req: CustomRequest, res: Response) => {
   const user = req.user;
