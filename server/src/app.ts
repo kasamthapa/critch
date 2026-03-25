@@ -16,6 +16,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/v1/auth", userAuth);
+app.use("api/v1/projects");
 app.get("/", (req, res) => {
   console.log("cookies", req.cookies);
   res.send("WElcome to critch");
