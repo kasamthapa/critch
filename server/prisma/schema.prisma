@@ -32,6 +32,7 @@ model Project{
   liveURL String
   githubURL String
   screenshotURL String
+  screenshotPublicId String
   created_at DateTime @default(now()) @db.Timestamptz
   updated_at DateTime @updatedAt @db.Timestamptz
   user User @relation(fields: [userId],references: [id])
@@ -42,7 +43,7 @@ model Project{
 }
 model Tag{
   id Int @id @default(autoincrement())
-  name String
+  name String @unique
   projects ProjectTag[]
 }
 //Bridge or Join table for Project and Tag table to create many to many relation
