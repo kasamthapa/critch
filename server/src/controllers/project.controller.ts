@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { projectSchema } from "../schemas/project.schema";
+import { projectEditSchema, projectSchema } from "../schemas/project.schema";
 import { prisma } from "../lib/prisma";
 import { CustomRequest } from "../types/customRequest";
 import { ApiError } from "../utils/ApiError";
 import { uploadOnCloudinary } from "../utils/cloudinary";
 import { ApiResponse } from "../utils/ApiResponse";
+import { format } from "node:path";
 
 export const createProjectController = async (
   req: CustomRequest,
@@ -26,12 +27,11 @@ export const createProjectController = async (
       500,
       "Failed to upload image to storage. Please try again later.",
     );
-  const Tags = tags.split(",").map((tag) => tag.toLowerCase().trim());
-  console.log(Tags);
+
   const TagIds: Array<number> = [];
 
   const newProject = await prisma.$transaction(async (tx) => {
-    for (const tag of Tags) {
+    for (const tag of tags) {
       const upsertedTags = await tx.tag.upsert({
         where: {
           name: tag,
@@ -84,8 +84,8 @@ export const getProjectController = async (req: Request, res: Response) => {
   let whereClause = {};
   if (req.query.tag) {
     whereClause = {
-      some: {
-        tags: {
+      tags: {
+        some: {
           tag: {
             name: req.query.tag,
           },
@@ -118,6 +118,73 @@ export const getProjectController = async (req: Request, res: Response) => {
   res.status(200).json(
     new ApiResponse(200, "Projects retreived successsfully", {
       formatedProject,
+    }),
+  );
+};
+
+export const editProjectController = async (
+  req: CustomRequest,
+  res: Response,
+) => {
+  const projectId = Number(req.params.projectId);
+  const userId = Number(req.user?.userId);
+  const { title, description, liveURL, githubURL, tags } =
+    projectEditSchema.parse(req.body);
+
+  const updatedProject = await prisma.$transaction(async (tx) => {
+    const project = await tx.project.findUnique({
+      where: {
+        id: projectId,
+      },
+    });
+    if (!project || project.userId !== userId)
+      throw new ApiError(403, "Unauthorized");
+
+    return tx.project.update({
+      where: {
+        id: projectId,
+      },
+      data: {
+        title: title,
+        description: description,
+        liveURL: liveURL,
+        githubURL: githubURL,
+        tags: {
+          deleteMany: {},
+          create: tags.map((tagName: string) => ({
+            tag: {
+              connectOrCreate: {
+                where: {
+                  name: tagName,
+                },
+                create: {
+                  name: tagName,
+                },
+              },
+            },
+          })),
+        },
+      },
+      include: {
+        tags: {
+          include: {
+            tag: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  const formatedTags = updatedProject.tags.map((t) => t.tag.name);
+
+  res.status(200).json(
+    new ApiResponse(200, "Project updated successfully", {
+      ...updatedProject,
+      formatedTags,
     }),
   );
 };
