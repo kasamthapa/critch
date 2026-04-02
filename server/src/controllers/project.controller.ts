@@ -79,3 +79,45 @@ export const createProjectController = async (
     }),
   );
 };
+
+export const getProjectController = async (req: Request, res: Response) => {
+  let whereClause = {};
+  if (req.query.tag) {
+    whereClause = {
+      some: {
+        tags: {
+          tag: {
+            name: req.query.tag,
+          },
+        },
+      },
+    };
+  }
+  const projects = await prisma.project.findMany({
+    where: whereClause,
+    orderBy: {
+      avgRating: "desc",
+    },
+    include: {
+      tags: {
+        include: {
+          tag: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  const formatedProject = projects.map((project) => {
+    const formatedTags = project.tags.map((t) => t.tag.name);
+    return { ...project, tags: formatedTags };
+  });
+
+  res.status(200).json(
+    new ApiResponse(200, "Projects retreived successsfully", {
+      formatedProject,
+    }),
+  );
+};

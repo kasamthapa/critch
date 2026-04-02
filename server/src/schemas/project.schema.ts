@@ -6,3 +6,5 @@ export const projectSchema = z.object({
   githubURL: z.string(),
   tags: z.string(),
 });
+
+export type Project = z.infer<typeof projectSchema>;

@@ -38,6 +38,7 @@ model Project{
   user User @relation(fields: [userId],references: [id])
   userId Int
   reviews Review[]
+  avgRating Decimal @db.Decimal(2,1) @default(0)
   tags ProjectTag[]
   comments Comment[]
 }
