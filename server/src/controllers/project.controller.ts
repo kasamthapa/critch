@@ -6,6 +6,8 @@ import { ApiError } from "../utils/ApiError";
 import { uploadOnCloudinary } from "../utils/cloudinary";
 import { ApiResponse } from "../utils/ApiResponse";
 import { format } from "node:path";
+import { CustomTypesConfig } from "pg";
+import { text } from "node:stream/consumers";
 
 export const createProjectController = async (
   req: CustomRequest,
@@ -110,18 +112,28 @@ export const getProjectController = async (req: Request, res: Response) => {
       },
     },
   });
-  const formatedProject = projects.map((project) => {
+  const formatedProjects = projects.map((project) => {
     const formatedTags = project.tags.map((t) => t.tag.name);
     return { ...project, tags: formatedTags };
   });
 
   res.status(200).json(
     new ApiResponse(200, "Projects retreived successsfully", {
-      formatedProject,
+      formatedProjects,
     }),
   );
 };
-
+export const getOneProjecttController = async (req: Request, res: Response) => {
+  const projectId = Number(req.params.id);
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+    },
+  });
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Project fetched successfully", project));
+};
 export const editProjectController = async (
   req: CustomRequest,
   res: Response,
@@ -187,4 +199,29 @@ export const editProjectController = async (
       formatedTags,
     }),
   );
+};
+
+export const deleteProjectController = async (
+  req: CustomRequest,
+  res: Response,
+) => {
+  const projectId = Number(req.params.id);
+  const userId = Number(req.user?.userId);
+  await prisma.$transaction(async (tx) => {
+    const project = await tx.project.findUnique({
+      where: {
+        id: projectId,
+      },
+    });
+    if (!project || project.userId !== userId)
+      throw new ApiError(403, "Unauthorized");
+    await tx.project.delete({
+      where: {
+        id: projectId,
+      },
+    });
+  });
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Project deleted successfully", {}));
 };
