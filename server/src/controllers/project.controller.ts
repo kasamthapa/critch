@@ -238,33 +238,31 @@ export const createReviewController = async (
   const { codeQuality, uiDesign, ideaScore, documentation, comment } =
     reviewSchema.parse(req.body);
 
+  // Wrap operations in a Transaction to ensure Data Integrity
   const newReview = await prisma.$transaction(async (tx) => {
+    // 1. Validation: Ensure project exists and fetch existing reviewers
     const project = await tx.project.findUnique({
-      where: {
-        id: projectId,
-      },
-      include: {
-        reviews: {
-          select: {
-            userId: true,
-          },
-        },
-      },
+      where: { id: projectId },
+      include: { reviews: { select: { userId: true } } },
     });
 
-    if (!project) throw new ApiError(404, "cannot find the project");
-    if (project.userId === userID)
-      throw new ApiError(403, "cannot review own project");
-    const hasReviewed = project.reviews.some((review) => {
-      return review.userId === userID;
-    });
+    if (!project) throw new ApiError(404, "Project not found");
 
-    if (hasReviewed)
-      throw new ApiError(409, "You have already reviewd this project!");
+    // Authorization: Prevent users from boosting their own project scores
+    if (project.userId === userID) {
+      throw new ApiError(403, "Reviewing your own project is not allowed");
+    }
 
+    // Guard Clause: Enforce a "One Review Per Project" policy
+    const alreadyReviewed = project.reviews.some((r) => r.userId === userID);
+    if (alreadyReviewed) {
+      throw new ApiError(409, "You have already reviewed this project!");
+    }
+
+    // 2. Business Logic: Calculate granular average for the new review
     const avgRating = (codeQuality + uiDesign + ideaScore + documentation) / 4;
 
-    const newReview = await tx.review.create({
+    const createdReview = await tx.review.create({
       data: {
         codeQuality,
         uiDesign,
@@ -276,45 +274,44 @@ export const createReviewController = async (
         comment,
       },
     });
-    const avgOfProjectReviews = await tx.review.aggregate({
-      where: {
-        projectId: projectId,
-      },
+
+    // 3. Dynamic Aggregation: Recalculate Project's overall rating
+    const projectStats = await tx.review.aggregate({
+      where: { projectId: projectId },
       _avg: { avgReview: true },
     });
 
     await tx.project.update({
-      where: {
-        id: projectId,
-      },
-      data: {
-        avgRating: avgOfProjectReviews._avg.avgReview ?? 0,
-      },
+      where: { id: projectId },
+      data: { avgRating: projectStats._avg.avgReview ?? 0 },
     });
-    //now geting avg of all the avgRatings of the projects of the user
 
-    const avgOfAvgRatings = await tx.review.aggregate({
+    // 4. Reputation System: Solve the "Average of Averages" problem
+    // We aggregate every individual review across ALL of the owner's projects
+    // This gives every human vote equal weight for the User's Reputation Score
+    const ownerStats = await tx.review.aggregate({
       where: {
-        project: {
-          userId: project.userId,
-        },
+        project: { userId: project.userId },
       },
       _avg: { avgReview: true },
       _count: { _all: true },
     });
+
+    // Sync User Reputation and Review Count in a single update
     await tx.user.update({
       where: { id: project.userId },
       data: {
-        reputationScore: avgOfAvgRatings._avg.avgReview ?? 0,
-        reviewCount: avgOfAvgRatings._count._all,
+        reputationScore: ownerStats._avg.avgReview ?? 0,
+        reviewCount: ownerStats._count._all,
       },
     });
-    return newReview;
+
+    return createdReview;
   });
 
   res
     .status(200)
     .json(
-      new ApiResponse(200, "Project review submitted successfuly", newReview),
+      new ApiResponse(200, "Project review submitted successfully", newReview),
     );
 };
