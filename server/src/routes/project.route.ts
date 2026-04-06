@@ -3,6 +3,7 @@ import { authMiddleware } from "../middleware/authMiddleware";
 import { asyncHandler } from "../utils/asyncHandler";
 import {
   createProjectController,
+  createReviewController,
   deleteProjectController,
   editProjectController,
   getOneProjecttController,
@@ -29,5 +30,10 @@ router.delete(
   "/delete/:id",
   authMiddleware,
   asyncHandler(deleteProjectController),
+);
+router.post(
+  "/:projectId/reviews",
+  authMiddleware,
+  asyncHandler(createReviewController),
 );
 export default router;

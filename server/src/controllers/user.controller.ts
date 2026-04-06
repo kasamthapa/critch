@@ -152,6 +152,7 @@ export const getCurrentUser = async (req: CustomRequest, res: Response) => {
       username: true,
       email: true,
       reputationScore: true,
+      reviewCount: true,
     },
   });
 

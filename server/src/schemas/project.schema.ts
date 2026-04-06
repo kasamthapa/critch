@@ -34,4 +34,13 @@ export const projectEditSchema = z.object({
     return [];
   }, z.array(z.string())),
 });
+
+export const reviewSchema = z.object({
+  codeQuality: z.number(),
+  uiDesign: z.number(),
+  ideaScore: z.number(),
+  documentation: z.number(),
+  comment: z.string(),
+});
+
 export type Project = z.infer<typeof projectSchema>;

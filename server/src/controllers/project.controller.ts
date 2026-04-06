@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
-import { projectEditSchema, projectSchema } from "../schemas/project.schema";
+import {
+  projectEditSchema,
+  projectSchema,
+  reviewSchema,
+} from "../schemas/project.schema";
 import { prisma } from "../lib/prisma";
 import { CustomRequest } from "../types/customRequest";
 import { ApiError } from "../utils/ApiError";
 import { uploadOnCloudinary } from "../utils/cloudinary";
 import { ApiResponse } from "../utils/ApiResponse";
-import { format } from "node:path";
-import { CustomTypesConfig } from "pg";
-import { text } from "node:stream/consumers";
 
 export const createProjectController = async (
   req: CustomRequest,
@@ -224,4 +225,96 @@ export const deleteProjectController = async (
   res
     .status(200)
     .json(new ApiResponse(200, "Project deleted successfully", {}));
+};
+
+//Reviews APIs
+
+export const createReviewController = async (
+  req: CustomRequest,
+  res: Response,
+) => {
+  const userID = Number(req.user?.userId);
+  const projectId = Number(req.params.projectId);
+  const { codeQuality, uiDesign, ideaScore, documentation, comment } =
+    reviewSchema.parse(req.body);
+
+  const newReview = await prisma.$transaction(async (tx) => {
+    const project = await tx.project.findUnique({
+      where: {
+        id: projectId,
+      },
+      include: {
+        reviews: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
+
+    if (!project) throw new ApiError(404, "cannot find the project");
+    if (project.userId === userID)
+      throw new ApiError(403, "cannot review own project");
+    const hasReviewed = project.reviews.some((review) => {
+      return review.userId === userID;
+    });
+
+    if (hasReviewed)
+      throw new ApiError(409, "You have already reviewd this project!");
+
+    const avgRating = (codeQuality + uiDesign + ideaScore + documentation) / 4;
+
+    const newReview = await tx.review.create({
+      data: {
+        codeQuality,
+        uiDesign,
+        ideaScore,
+        documentation,
+        avgReview: avgRating,
+        userId: userID,
+        projectId,
+        comment,
+      },
+    });
+    const avgOfProjectReviews = await tx.review.aggregate({
+      where: {
+        projectId: projectId,
+      },
+      _avg: { avgReview: true },
+    });
+
+    await tx.project.update({
+      where: {
+        id: projectId,
+      },
+      data: {
+        avgRating: avgOfProjectReviews._avg.avgReview ?? 0,
+      },
+    });
+    //now geting avg of all the avgRatings of the projects of the user
+
+    const avgOfAvgRatings = await tx.review.aggregate({
+      where: {
+        project: {
+          userId: project.userId,
+        },
+      },
+      _avg: { avgReview: true },
+      _count: { _all: true },
+    });
+    await tx.user.update({
+      where: { id: project.userId },
+      data: {
+        reputationScore: avgOfAvgRatings._avg.avgReview ?? 0,
+        reviewCount: avgOfAvgRatings._count._all,
+      },
+    });
+    return newReview;
+  });
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, "Project review submitted successfuly", newReview),
+    );
 };
