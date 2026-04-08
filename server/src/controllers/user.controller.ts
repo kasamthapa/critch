@@ -151,10 +151,33 @@ export const getCurrentUser = async (req: CustomRequest, res: Response) => {
     select: {
       username: true,
       email: true,
+      bio: true,
       reputationScore: true,
       reviewCount: true,
     },
   });
 
-  res.json(new ApiResponse(200, "User authorized", { userData }));
+  res.json(new ApiResponse(200, "User fetched", { userData }));
+};
+
+export const getUserProfile = async (req: Request, res: Response) => {
+  const username = req.params.username;
+  if (Array.isArray(username))
+    throw new ApiError(400, "Invalid username format");
+  const user = await prisma.user.findUnique({
+    where: {
+      username: username,
+    },
+    select: {
+      username: true,
+      email: true,
+      bio: true,
+      reputationScore: true,
+      reviewCount: true,
+    },
+  });
+  if (!user) throw new ApiError(404, "User not found");
+  res
+    .status(200)
+    .json(new ApiResponse(200, "User profile fetched successfully", user));
 };

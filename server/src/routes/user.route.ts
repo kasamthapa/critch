@@ -2,6 +2,7 @@ import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import {
   getCurrentUser,
+  getUserProfile,
   logoutController,
   refreshTokenController,
   userSignInController,
