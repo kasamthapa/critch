@@ -8,6 +8,7 @@ import {
   editProjectController,
   getOneProjecttController,
   getProjectController,
+  getReviewController,
 } from "../controllers/project.controller";
 import { upload } from "../middleware/multerMiddleware";
 const router = Router();
@@ -36,4 +37,5 @@ router.post(
   authMiddleware,
   asyncHandler(createReviewController),
 );
+router.get("/:projectId/reviews", asyncHandler(getReviewController));
 export default router;

@@ -315,3 +315,30 @@ export const createReviewController = async (
       new ApiResponse(200, "Project review submitted successfully", newReview),
     );
 };
+
+export const getReviewController = async (req: Request, res: Response) => {
+  /*
+  get projectId
+  query project with this project id and include reviews in it and customize only reviews to be sent to client
+  */
+
+  const projectId = Number(req.params.projectId);
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+    },
+    include: {
+      reviews: true,
+    },
+  });
+  if (!project) throw new ApiError(404, "Project Not found!");
+
+  const reviews = {
+    projectId: project.id,
+    projectTitle: project.title,
+    reviews: project.reviews,
+  };
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Reviews fetched successfully", reviews));
+};
