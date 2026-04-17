@@ -111,16 +111,27 @@ export const getProjectController = async (req: Request, res: Response) => {
           },
         },
       },
+      user: {
+        select: {
+          username: true,
+          avatarURL: true,
+          reputationScore: true,
+        },
+      },
+      _count: {
+        select: { reviews: true },
+      },
     },
   });
   const formatedProjects = projects.map((project) => {
-    const formatedTags = project.tags.map((t) => t.tag.name);
-    return { ...project, tags: formatedTags };
+    const { tags, user, ...rest } = project;
+    const formatedTags = tags.map((t) => t.tag.name);
+    return { ...rest, tags: formatedTags, author: user };
   });
 
   res.status(200).json(
     new ApiResponse(200, "Projects retreived successsfully", {
-      formatedProjects,
+      projects: formatedProjects,
     }),
   );
 };
@@ -130,10 +141,49 @@ export const getOneProjecttController = async (req: Request, res: Response) => {
     where: {
       id: projectId,
     },
+    include: {
+      user: {
+        select: {
+          username: true,
+          avatarURL: true,
+          reputationScore: true,
+        },
+      },
+      tags: {
+        include: {
+          tag: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              username: true,
+              avatarURL: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: { reviews: true },
+      },
+    },
   });
-  res
-    .status(200)
-    .json(new ApiResponse(200, "Project fetched successfully", project));
+  if (!project) throw new ApiError(404, "Project not found!");
+  const { user, tags, ...rest } = project;
+  const formatedTags = tags.map((t) => t.tag.name);
+
+  res.status(200).json(
+    new ApiResponse(200, "Project fetched successfully", {
+      ...rest,
+      tags: formatedTags,
+      author: user,
+    }),
+  );
 };
 export const editProjectController = async (
   req: CustomRequest,

@@ -31,8 +31,6 @@ export const userSignupController = async (req: Request, res: Response) => {
       id: true,
       username: true,
       email: true,
-      reputationScore: true,
-      created_at: true,
     },
   });
   res
@@ -73,9 +71,6 @@ export const userSignInController = async (req: Request, res: Response) => {
     id: user.id,
     username: user.username,
     email: user.email,
-    bio: user.bio,
-    avatar: user.avatarURL,
-    reputationScore: user.reputationScore,
   };
 
   res.cookie("refreshToken", refreshToken, {
@@ -149,11 +144,13 @@ export const getCurrentUser = async (req: CustomRequest, res: Response) => {
       id: Number(userId),
     },
     select: {
+      id: true,
       username: true,
       email: true,
       bio: true,
       reputationScore: true,
       reviewCount: true,
+      avatarURL: true,
     },
   });
 
