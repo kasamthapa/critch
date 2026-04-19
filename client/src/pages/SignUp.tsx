@@ -18,7 +18,7 @@ export function SignUp() {
     setFormValues((prev) => ({ ...prev, [name]: value }));
   }
 
-  async function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
     const payload: SignUpRequest = { ...formValues };
@@ -37,7 +37,7 @@ export function SignUp() {
   }
   return (
     <div>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={handleSubmit}>
         <label htmlFor="username">Username</label>
         <input
           type="text"
