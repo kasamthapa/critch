@@ -7,7 +7,7 @@ export interface SignupRequest {
   password: string;
 }
 
-export interface LoginRequest {
+export interface SignInRequest {
   email: string;
   password: string;
 }
