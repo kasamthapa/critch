@@ -33,9 +33,7 @@ export const userSignupController = async (req: Request, res: Response) => {
       email: true,
     },
   });
-  res
-    .status(200)
-    .json(new ApiResponse(200, "user signed up successfully", { user }));
+  res.status(200).json(new ApiResponse(200, "user signed up successfully", {}));
 };
 
 export const userSignInController = async (req: Request, res: Response) => {
