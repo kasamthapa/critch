@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
 import { ZodError } from "zod";
+import { ApiResponse } from "../utils/ApiResponse";
 
 export const errorMiddleware = (
   err: any,
@@ -12,19 +13,21 @@ export const errorMiddleware = (
   if (err instanceof ZodError) {
     return res
       .status(400)
-      .json({ message: "Validation failed", errors: err.issues });
+      .json(new ApiResponse(400, "Validation failed", { errors: err.issues }));
   }
   if (err.name === "TokenExpiredError") {
-    return res.status(401).json({ message: "Token expired" });
+    return res.status(401).json(new ApiResponse(401, "Token expired", null));
   }
   if (err.name === "JsonWebTokenError") {
-    return res.status(401).json({ message: "Invalid Token" });
+    return res.status(401).json(new ApiResponse(401, "Invalid Token", null));
   }
   if (err instanceof ApiError) {
-    return res.status(err.statusCode).json({ message: err.message });
+    return res
+      .status(err.statusCode)
+      .json(new ApiResponse(err.statusCode, err.message, null));
   }
 
-  return res.status(500).json({
-    message: "Internal server error",
-  });
+  return res
+    .status(500)
+    .json(new ApiResponse(500, "Internal server error", null));
 };
