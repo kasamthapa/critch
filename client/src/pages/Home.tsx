@@ -8,9 +8,15 @@ export function Home() {
   const [error, setError] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
+  const [tags, setTags] = useState<Array<string>>([]);
   const [flashMessage, setFlashMessage] = useState(
     location.state?.message || "",
   );
+  const [selectedTag, setSelectedTag] = useState("");
+
+  function handleTagSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+    setSelectedTag(e.target.value);
+  }
   useEffect(() => {
     if (flashMessage) {
       const timer = setTimeout(() => {
@@ -23,8 +29,15 @@ export function Home() {
     const makeRequest = async () => {
       setIsLoading(true);
       try {
-        const response = await getProjects();
+        const response = await getProjects(selectedTag);
+
         setProjects(response.data.projects);
+        if (!selectedTag) {
+          const allTags = response.data.projects.flatMap((p) => p.tags);
+          const uniqueTags = [...new Set(allTags)];
+          setTags(uniqueTags);
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         setError(err.response?.data.message);
@@ -33,7 +46,7 @@ export function Home() {
       }
     };
     makeRequest();
-  }, []);
+  }, [selectedTag]);
 
   return (
     <>
@@ -43,12 +56,22 @@ export function Home() {
         <div>
           <span>{flashMessage}</span>
           <h1>HomePage</h1>
+          <span style={{ marginRight: 8 }}>Filter:</span>
+          <select name="tag" onChange={handleTagSelect} value={selectedTag}>
+            <option value="">All projects</option>
+            {tags.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+          <div className="tagButtons"></div>
           <div className="projectsContainer">
             {projects !== undefined &&
               projects.map((p) => (
                 <div key={p.id}>
-                  <h3>{p.title}</h3>
-                  <span>{p.created_at}</span>
+                  <h3>{p.title} </h3>
+                  <span style={{ fontSize: 12 }}>Posted on:{p.created_at}</span>
                   <p>Author:{p.author.username}</p>
                   <p>{p.description}</p>
                   <a href={p.liveURL} target="_blank">
