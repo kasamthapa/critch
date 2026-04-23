@@ -12,9 +12,13 @@ function App() {
         <Routes>
           <Route element={<ProtectedRoutes />}>
             <Route path="/" element={<Home />} />
+            <Route path="/dashboard" />
+            <Route path="/projects/new" />
           </Route>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/projects/:id" />
+          <Route path="/profile/:username" />
         </Routes>
       </BrowserRouter>
     </>
