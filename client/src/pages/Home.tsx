@@ -66,10 +66,26 @@ export function Home() {
             ))}
           </select>
           <div className="tagButtons"></div>
-          <div className="projectsContainer">
+          <div
+            className="projectsContainer"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              padding: "10px",
+            }}
+          >
             {projects !== undefined &&
               projects.map((p) => (
-                <div key={p.id}>
+                <div
+                  key={p.id}
+                  style={{
+                    border: "2px solid white",
+                    borderRadius: "5px",
+                    width: "30rem",
+                    marginBottom: "15px",
+                  }}
+                >
                   <h3>{p.title} </h3>
                   <span style={{ fontSize: 12 }}>Posted on:{p.created_at}</span>
                   <p>Author:{p.author.username}</p>
