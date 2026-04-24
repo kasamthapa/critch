@@ -1,24 +1,22 @@
-import * as z from "zod";
 import type { Request, Response } from "express";
 import bcrypt, { genSalt } from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 import { userSignupSchema, userSignInSchema } from "../schemas/auth.schema";
-import { asyncHandler } from "../utils/asyncHandler";
+
 import { JWT_SECRET } from "../config/env.js";
 import { ApiError } from "../utils/ApiError";
-import app from "../app";
+
 import { ApiResponse } from "../utils/ApiResponse";
 import { generateAccessToken, generateRefreshToken } from "../utils/tokenGen";
 import { JwtPayload } from "../types/jwtPayload";
 import { CustomRequest } from "../types/customRequest";
-import { primitiveTypes } from "zod/v4/core/util.cjs";
 
 export const userSignupController = async (req: Request, res: Response) => {
   const { username, email, password } = userSignupSchema.parse(req.body);
   const salt = await genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  const user = await prisma.user.create({
+  await prisma.user.create({
     data: {
       username,
       email,
@@ -26,11 +24,6 @@ export const userSignupController = async (req: Request, res: Response) => {
       bio: "",
       avatarURL: "",
       reputationScore: 0,
-    },
-    select: {
-      id: true,
-      username: true,
-      email: true,
     },
   });
   res.status(200).json(new ApiResponse(200, "user signed up successfully", {}));
@@ -94,7 +87,7 @@ export const refreshTokenController = async (req: Request, res: Response) => {
     throw new ApiError(404, "Refresh token not found");
   }
   const decoded = jwt.verify(RefreshToken, JWT_SECRET) as JwtPayload;
-  const hashedRefreshToken = await bcrypt.hash(RefreshToken, 10);
+
   const isPresentInDB = await prisma.refreshToken.findFirst({
     where: {
       user_id: Number(decoded.userId),
@@ -106,7 +99,11 @@ export const refreshTokenController = async (req: Request, res: Response) => {
   if (!isPresentInDB) {
     throw new ApiError(401, "Invalid Token");
   }
+  const isValid = await bcrypt.compare(RefreshToken, isPresentInDB.token);
 
+  if (!isValid) {
+    throw new ApiError(401, "Invalid Token");
+  }
   const newAccessToken = generateAccessToken(decoded.userId);
 
   res.json(
