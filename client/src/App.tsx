@@ -10,8 +10,8 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route element={<ProtectedRoutes />}>
-            <Route path="/" element={<Home />} />
             <Route path="/dashboard" />
             <Route path="/projects/new" />
           </Route>
