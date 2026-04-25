@@ -374,37 +374,30 @@ export const getReviewController = async (req: Request, res: Response) => {
   */
 
   const projectId = Number(req.params.projectId);
-  const project = await prisma.project.findUnique({
+  const reviews = await prisma.review.findMany({
     where: {
-      id: projectId,
+      projectId: projectId,
     },
     include: {
-      reviews: {
-        include: {
-          user: {
-            select: {
-              username: true,
-              avatarURL: true,
-            },
-          },
+      user: {
+        select: {
+          username: true,
+          avatarURL: true,
         },
       },
     },
   });
-  if (!project) throw new ApiError(404, "Project Not found!");
-  const formatedReviews = project.reviews.map((r) => {
+
+  const formatedReviews = reviews.map((r) => {
     const { user, ...rest } = r;
     return { ...rest, author: user };
   });
-  const response = {
-    projectId: project.id,
-    projectTitle: project.title,
-    reviews: formatedReviews,
-  };
 
   res
     .status(200)
-    .json(new ApiResponse(200, "Reviews fetched successfully", response));
+    .json(
+      new ApiResponse(200, "Reviews fetched successfully", formatedReviews),
+    );
 };
 
 export const createCommentController = async (
@@ -429,38 +422,28 @@ export const createCommentController = async (
 
 export const getCommentController = async (req: Request, res: Response) => {
   const projectId = Number(req.params.projectId);
-  const project = await prisma.project.findUnique({
+  const comments = await prisma.comment.findMany({
     where: {
-      id: projectId,
+      projectId: projectId,
     },
     include: {
-      comments: {
-        include: {
-          user: {
-            select: {
-              username: true,
-              avatarURL: true,
-            },
-          },
+      user: {
+        select: {
+          username: true,
+          avatarURL: true,
         },
       },
     },
   });
-  if (!project) throw new ApiError(404, "Project Not found!");
 
-  const formattedComments = project.comments.map((c) => {
+  const formattedComments = comments.map((c) => {
     const { user, ...rest } = c;
     return { ...rest, author: user };
   });
-  const response = {
-    projectId: project.id,
-    projectTitle: project.title,
-    comments: formattedComments,
-  };
 
   res.status(200).json(
     new ApiResponse(200, "Comments fetched successfully", {
-      response,
+      formattedComments,
     }),
   );
 };
