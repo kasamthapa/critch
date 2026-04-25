@@ -7,6 +7,7 @@ import {
   createReviewController,
   deleteProjectController,
   editProjectController,
+  getCommentController,
   getOneProjecttController,
   getProjectController,
   getReviewController,
@@ -46,3 +47,4 @@ router.post(
   authMiddleware,
   asyncHandler(createCommentController),
 );
+router.get("/:projectId/comments", asyncHandler(getCommentController));

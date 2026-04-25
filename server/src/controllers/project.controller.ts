@@ -379,19 +379,32 @@ export const getReviewController = async (req: Request, res: Response) => {
       id: projectId,
     },
     include: {
-      reviews: true,
+      reviews: {
+        include: {
+          user: {
+            select: {
+              username: true,
+              avatarURL: true,
+            },
+          },
+        },
+      },
     },
   });
   if (!project) throw new ApiError(404, "Project Not found!");
-
-  const reviews = {
+  const formatedReviews = project.reviews.map((r) => {
+    const { user, ...rest } = r;
+    return { ...rest, author: user };
+  });
+  const response = {
     projectId: project.id,
     projectTitle: project.title,
-    reviews: project.reviews,
+    reviews: formatedReviews,
   };
+
   res
     .status(200)
-    .json(new ApiResponse(200, "Reviews fetched successfully", reviews));
+    .json(new ApiResponse(200, "Reviews fetched successfully", response));
 };
 
 export const createCommentController = async (
@@ -414,16 +427,40 @@ export const createCommentController = async (
     .json(new ApiResponse(200, "Commented successfuly", { comment }));
 };
 
-// model Comment{
-//   id Int @id @default(autoincrement())
-//   content String
-//   user User @relation(fields: [userId],references: [id])
-//   userId Int
-//   project Project @relation(fields: [projectId],references: [id],onDelete: Cascade)
-//   projectId Int
-//   //Defining Self-relation for comments
-//   parentId Int?
-//   parent Comment? @relation("CommentReplies",fields: [parentId],references: [id])
-//   replies Comment[] @relation("CommentReplies")
+export const getCommentController = async (req: Request, res: Response) => {
+  const projectId = Number(req.params.projectId);
+  const project = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+    },
+    include: {
+      comments: {
+        include: {
+          user: {
+            select: {
+              username: true,
+              avatarURL: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!project) throw new ApiError(404, "Project Not found!");
 
-// }
+  const formattedComments = project.comments.map((c) => {
+    const { user, ...rest } = c;
+    return { ...rest, author: user };
+  });
+  const response = {
+    projectId: project.id,
+    projectTitle: project.title,
+    comments: formattedComments,
+  };
+
+  res.status(200).json(
+    new ApiResponse(200, "Comments fetched successfully", {
+      response,
+    }),
+  );
+};
