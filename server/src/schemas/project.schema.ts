@@ -42,5 +42,7 @@ export const reviewSchema = z.object({
   documentation: z.number(),
   comment: z.string(),
 });
-
+export const commentSchema = z.object({
+  content: z.string(),
+});
 export type Project = z.infer<typeof projectSchema>;
