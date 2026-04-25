@@ -3,6 +3,7 @@ import {
   projectEditSchema,
   projectSchema,
   reviewSchema,
+  commentSchema,
 } from "../schemas/project.schema";
 import { prisma } from "../lib/prisma";
 import { CustomRequest } from "../types/customRequest";
@@ -392,3 +393,37 @@ export const getReviewController = async (req: Request, res: Response) => {
     .status(200)
     .json(new ApiResponse(200, "Reviews fetched successfully", reviews));
 };
+
+export const createCommentController = async (
+  req: CustomRequest,
+  res: Response,
+) => {
+  const userId = Number(req.user?.userId);
+  const projectId = Number(req.params.projectId);
+  const { content, parentId } = commentSchema.parse(req.body);
+  const comment = await prisma.comment.create({
+    data: {
+      content,
+      userId,
+      projectId,
+      parentId: parentId ?? null,
+    },
+  });
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Commented successfuly", { comment }));
+};
+
+// model Comment{
+//   id Int @id @default(autoincrement())
+//   content String
+//   user User @relation(fields: [userId],references: [id])
+//   userId Int
+//   project Project @relation(fields: [projectId],references: [id],onDelete: Cascade)
+//   projectId Int
+//   //Defining Self-relation for comments
+//   parentId Int?
+//   parent Comment? @relation("CommentReplies",fields: [parentId],references: [id])
+//   replies Comment[] @relation("CommentReplies")
+
+// }

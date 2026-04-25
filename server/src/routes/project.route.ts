@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { asyncHandler } from "../utils/asyncHandler";
 import {
+  createCommentController,
   createProjectController,
   createReviewController,
   deleteProjectController,
@@ -39,3 +40,9 @@ router.post(
 );
 router.get("/:projectId/reviews", asyncHandler(getReviewController));
 export default router;
+
+router.post(
+  "/:projectId/comments",
+  authMiddleware,
+  asyncHandler(createCommentController),
+);
