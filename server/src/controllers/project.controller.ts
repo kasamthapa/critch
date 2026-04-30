@@ -169,6 +169,16 @@ export const getOneProjecttController = async (req: Request, res: Response) => {
           },
         },
       },
+      comments: {
+        include: {
+          user: {
+            select: {
+              username: true,
+              avatarURL: true,
+            },
+          },
+        },
+      },
       _count: {
         select: { reviews: true },
       },
