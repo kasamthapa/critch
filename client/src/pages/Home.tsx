@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getProjects } from "../api/project.api";
 import type { ProjectSummary } from "../types/project.types";
 
@@ -12,10 +12,13 @@ export function Home() {
   const [flashMessage, setFlashMessage] = useState(
     location.state?.message || "",
   );
+  const navigate = useNavigate();
   const [selectedTag, setSelectedTag] = useState("");
-
   function handleTagSelect(e: React.ChangeEvent<HTMLSelectElement>) {
     setSelectedTag(e.target.value);
+  }
+  function handleProjectClick(id: number) {
+    navigate(`/projects/${id}`);
   }
   useEffect(() => {
     if (flashMessage) {
@@ -85,6 +88,7 @@ export function Home() {
                     width: "30rem",
                     marginBottom: "15px",
                   }}
+                  onClick={() => handleProjectClick(p.id)}
                 >
                   <h3>{p.title} </h3>
                   <span style={{ fontSize: 12 }}>Posted on:{p.created_at}</span>

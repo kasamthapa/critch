@@ -4,6 +4,7 @@ import { SignUp } from "./pages/SignUp";
 import { SignIn } from "./pages/SignIn";
 import { Home } from "./pages/Home";
 import ProtectedRoutes from "./components/ProtectedRoutes";
+import Project from "./pages/Project";
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
           </Route>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
-          <Route path="/projects/:id" />
+          <Route path="/projects/:id" element={<Project />} />
           <Route path="/profile/:username" />
         </Routes>
       </BrowserRouter>

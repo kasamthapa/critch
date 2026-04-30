@@ -10,7 +10,7 @@ export const getProjects = async (
   const response = await api.get("/projects", { params: tag ? { tag } : {} });
   return response.data;
 };
-export const getProject = async (
+export const getOneProject = async (
   id: string,
 ): Promise<GetOneProjectResponse> => {
   const response = await api.get(`/projects/${id}`);
