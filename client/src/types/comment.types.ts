@@ -4,7 +4,7 @@ export interface CommentAuthor {
 }
 export interface Comment {
   id: number;
-  cotent: string;
+  content: string;
   userId: number;
   projectId: number;
   user: CommentAuthor;
