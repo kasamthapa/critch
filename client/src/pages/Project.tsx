@@ -31,14 +31,75 @@ function Project() {
   }, [id]);
   return (
     <>
-      {isLoading ? (
-        "Loading....."
-      ) : (
-        <div>
-          <p>{project?.title}</p>
-          {error}
-        </div>
-      )}
+      {isLoading
+        ? "Loading....."
+        : project && (
+            <div>
+              <h3>{project.title} </h3>
+              <span style={{ fontSize: 12 }}>
+                Posted on:{project.created_at}
+              </span>
+              <p>Author:{project.author.username}</p>
+              <p>{project.description}</p>
+              <a href={project.liveURL} target="_blank">
+                Try live
+              </a>
+              <br />
+              <a href={project.githubURL} target="_blank">
+                View Code
+              </a>
+              <p>
+                {project.tags.map((t) => (
+                  <span key={t}>#{t}</span>
+                ))}
+              </p>
+              <img
+                src={project.screenshotURL}
+                alt="projectScreenshot"
+                width={100}
+                height={100}
+              />
+              <p>Reviews:{project._count.reviews}</p>
+              <p>AverageRating:{project.avgRating}</p>
+              <br />
+              <div>
+                {project.reviews.map((r) => (
+                  <div key={r.id}>
+                    <p>
+                      {r.user.username}::
+                      <span>{r.comment}</span>
+                    </p>
+
+                    <div>
+                      CodeQuality:{r.codeQuality}
+                      <progress value={r.codeQuality} max={5} />
+                    </div>
+                    <div>
+                      Idea:{r.ideaScore}
+                      <progress value={r.ideaScore} max={5} />
+                    </div>
+                    <div>
+                      Documentation:{r.documentation}
+                      <progress value={r.documentation} max={5} />
+                    </div>
+                    <div>
+                      UI Design:{r.uiDesign}
+                      <progress value={r.uiDesign} max={5} />
+                    </div>
+                    <br />
+                  </div>
+                ))}
+                Comments: <br />
+                {project.comments.map((c) => (
+                  <p key={c.id}>
+                    {c.user.username}:{c.content}
+                  </p>
+                ))}
+              </div>
+
+              {error}
+            </div>
+          )}
     </>
   );
 }
