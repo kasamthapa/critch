@@ -7,5 +7,6 @@ export interface Comment {
   content: string;
   userId: number;
   projectId: number;
+  parentId?: number;
   user: CommentAuthor;
 }
