@@ -9,4 +9,5 @@ export interface Comment {
   projectId: number;
   parentId?: number;
   user: CommentAuthor;
+  replies?: Comment[];
 }
