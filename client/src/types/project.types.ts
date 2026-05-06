@@ -115,7 +115,7 @@
 //         }
 //     },
 import type { ApiResponse } from "./apiResponse.types";
-import type { Comment } from "./comment.types";
+import type { CommentType } from "./comment.types";
 import type { Review } from "./review.types";
 export interface CreateProjectRequest {
   title: string;
@@ -152,7 +152,7 @@ export interface ProjectSummary {
 }
 export interface ProjectDetail extends ProjectSummary {
   reviews: Review[];
-  comments: Comment[];
+  comments: CommentType[];
 }
 export interface CreatedProject {
   id: number;

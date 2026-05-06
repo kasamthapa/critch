@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import type { ProjectDetail } from "../types/project.types";
 import { getOneProject } from "../api/project.api";
-
+import type { CommentType } from "../types/comment.types";
+import Comment from "../components/Comment";
 function Project() {
   const [project, setProject] = useState<ProjectDetail>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [comments, setComments] = useState<CommentType[]>([]);
   const { id } = useParams();
 
   useEffect(() => {
@@ -19,6 +21,23 @@ function Project() {
       try {
         const response = await getOneProject(id);
         setProject(response.data);
+
+        const TopLevelComments = response.data.comments.filter(
+          (c) => c.parentId == null,
+        );
+
+        function buildCommentTree(cmts: CommentType[] | undefined) {
+          cmts?.forEach((cm: CommentType) => {
+            response.data.comments.forEach((c) => {
+              if (cm.id === c.parentId) {
+                cm.replies = cm.replies ? [...cm.replies, c] : [c];
+                buildCommentTree(cm.replies);
+              }
+            });
+          });
+        }
+        buildCommentTree(TopLevelComments);
+        setComments(TopLevelComments);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         setError(e.response?.data.message);
@@ -29,6 +48,7 @@ function Project() {
 
     makeRequest();
   }, [id]);
+
   return (
     <>
       {isLoading
@@ -90,10 +110,14 @@ function Project() {
                   </div>
                 ))}
                 Comments: <br />
-                {project.comments.map((c) => (
-                  <p key={c.id}>
-                    {c.user.username}:{c.content}
-                  </p>
+                {comments?.map((c: CommentType) => (
+                  <Comment
+                    key={c.id}
+                    user={c.user}
+                    isReply={false}
+                    content={c.content}
+                    replies={c.replies}
+                  />
                 ))}
               </div>
 
