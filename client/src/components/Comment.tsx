@@ -14,7 +14,7 @@ function Comment({
     <div>
       <div style={{ marginLeft: isReply ? 200 : 0 }}>
         <p>
-          {/* <img src={user.avatarURL} alt="userProfile" /> */}
+          <img src={user.avatarURL} alt="userProfile" />
           {user.username}
         </p>
         <p>{content}</p>
