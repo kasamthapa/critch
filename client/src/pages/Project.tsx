@@ -103,28 +103,23 @@ function Project() {
               <br />
               <div>
                 {project.reviews.map((r) => (
-                  <div key={r.id}>
+                  <div
+                    key={r.id}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
                     <p>
                       {r.user.username}::
                       <span>{r.comment}</span>
                     </p>
 
-                    <div>
-                      CodeQuality:{r.codeQuality}
-                      <progress value={r.codeQuality} max={5} />
-                    </div>
-                    <div>
-                      Idea:{r.ideaScore}
-                      <progress value={r.ideaScore} max={5} />
-                    </div>
-                    <div>
-                      Documentation:{r.documentation}
-                      <progress value={r.documentation} max={5} />
-                    </div>
-                    <div>
-                      UI Design:{r.uiDesign}
-                      <progress value={r.uiDesign} max={5} />
-                    </div>
+                    <div>CodeQuality:{r.codeQuality}/5</div>
+                    <div>Idea:{r.ideaScore}/5</div>
+                    <div>Documentation:{r.documentation}/5</div>
+                    <div>UI Design:{r.uiDesign}/5</div>
                     <br />
                   </div>
                 ))}

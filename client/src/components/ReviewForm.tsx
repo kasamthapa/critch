@@ -22,7 +22,9 @@ function ReviewForm({
   const { id } = useParams();
   const projectId = Number(id);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
     const { name, value } = e.target;
     setFormValues((prev) => ({
       ...prev,
@@ -108,12 +110,7 @@ function ReviewForm({
           {formValues.documentation}
           <br />
           <label htmlFor="comment">Comment:</label>
-          <input
-            type="textarea"
-            id="comment"
-            name="comment"
-            onChange={handleChange}
-          />{" "}
+          <textarea id="comment" name="comment" onChange={handleChange} />
           <br />
           <button type="submit">Submit</button>
         </form>
