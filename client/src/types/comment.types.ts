@@ -11,3 +11,7 @@ export interface CommentType {
   user: CommentAuthor;
   replies?: CommentType[];
 }
+export interface createCommentRequest {
+  content: string;
+  parentId?: number;
+}
