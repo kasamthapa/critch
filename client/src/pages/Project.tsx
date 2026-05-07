@@ -101,19 +101,28 @@ function Project() {
               <p>Reviews:{project._count.reviews}</p>
               <p>AverageRating:{project.avgRating}</p>
               <br />
-              <div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
                 {project.reviews.map((r) => (
                   <div
                     key={r.id}
                     style={{
                       display: "flex",
+                      width: "200px",
                       flexDirection: "column",
                       alignItems: "center",
+                      border: "2px solid white",
+                      borderRadius: "4px",
                     }}
                   >
                     <p>
-                      {r.user.username}::
-                      <span>{r.comment}</span>
+                      <img src={r.user.avatarURL} alt="userProfile" />
+                      &nbsp; {r.user.username}:<span>{r.comment}</span>
                     </p>
 
                     <div>CodeQuality:{r.codeQuality}/5</div>
@@ -134,7 +143,11 @@ function Project() {
                   />
                 ))}
               </div>
-              {user?.id !== project.userId && (
+              {user?.id === project.userId ? (
+                "You cannot review your own project"
+              ) : project.reviews.some((r) => r.userId === user?.id) ? (
+                "You have already reviewed this project"
+              ) : (
                 <button onClick={() => setIsCreateReview((prev) => !prev)}>
                   Create Review
                 </button>

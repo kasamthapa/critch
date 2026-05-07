@@ -121,12 +121,3 @@ function ReviewForm({
 }
 
 export default ReviewForm;
-
-// export interface CreateReviewRequest {
-//   projectId: number;
-//   codeQuality: number;
-//   uiDesign: number;
-//   ideaScore: number;
-//   documentation: number;
-//   comment: string;
-// }
