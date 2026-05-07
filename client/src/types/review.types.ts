@@ -1,3 +1,5 @@
+import type { ApiResponse } from "./apiResponse.types";
+
 export interface CreateReviewRequest {
   codeQuality: number;
   uiDesign: number;
@@ -22,3 +24,5 @@ export interface Review {
   projectId: number;
   user: ReviewAuthor;
 }
+
+export type CreateReviewResponse = ApiResponse<Review>;
