@@ -1,16 +1,34 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import type { ProjectDetail } from "../types/project.types";
 import { getOneProject } from "../api/project.api";
 import type { CommentType } from "../types/comment.types";
 import Comment from "../components/Comment";
+import ReviewForm from "../components/ReviewForm";
+import { useAuth } from "../hooks/useAuth";
 function Project() {
   const [project, setProject] = useState<ProjectDetail>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [comments, setComments] = useState<CommentType[]>([]);
+  const [isCreateReview, setIsCreateReview] = useState<boolean>(false);
+  const location = useLocation();
+  const message = location.state?.message;
+  const [flashMessage, setFlashMessage] = useState(message || "");
   const { id } = useParams();
+  const { user } = useAuth();
 
+  useEffect(() => {
+    setFlashMessage(message);
+  }, [message]);
+  useEffect(() => {
+    if (flashMessage) {
+      const timer = setTimeout(() => {
+        setFlashMessage("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [flashMessage]);
   useEffect(() => {
     const makeRequest = async () => {
       if (!id) {
@@ -47,7 +65,7 @@ function Project() {
     };
 
     makeRequest();
-  }, [id]);
+  }, [id, message]);
 
   return (
     <>
@@ -55,6 +73,7 @@ function Project() {
         ? "Loading....."
         : project && (
             <div>
+              <p>{flashMessage}</p>
               <h3>{project.title} </h3>
               <span style={{ fontSize: 12 }}>
                 Posted on:{project.created_at}
@@ -120,7 +139,14 @@ function Project() {
                   />
                 ))}
               </div>
-
+              {user?.id !== project.userId && (
+                <button onClick={() => setIsCreateReview((prev) => !prev)}>
+                  Create Review
+                </button>
+              )}{" "}
+              {isCreateReview && (
+                <ReviewForm setIsCreateReview={setIsCreateReview} />
+              )}
               {error}
             </div>
           )}
