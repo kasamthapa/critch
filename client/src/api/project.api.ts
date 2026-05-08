@@ -6,6 +6,7 @@ import type {
   CreateReviewRequest,
   CreateReviewResponse,
 } from "../types/review.types";
+import type { createCommentRequest } from "../types/comment.types";
 import { api } from "./axiosInstance";
 
 export const getProjects = async (
@@ -36,4 +37,15 @@ export const createReview = async ({
     comment,
   });
   return response.data;
+};
+export const createComment = async ({
+  projectId,
+  content,
+  parentId,
+}: createCommentRequest) => {
+  await api.post(`/projects/${projectId}/comments`, {
+    projectId,
+    content,
+    parentId,
+  });
 };

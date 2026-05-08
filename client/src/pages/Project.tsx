@@ -6,13 +6,19 @@ import type { CommentType } from "../types/comment.types";
 import Comment from "../components/Comment";
 import ReviewForm from "../components/ReviewForm";
 import { useAuth } from "../hooks/useAuth";
+import CommentForm from "../components/CommentForm";
+import { FaRegComment } from "react-icons/fa";
 function Project() {
   const [project, setProject] = useState<ProjectDetail>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [isCreateReview, setIsCreateReview] = useState<boolean>(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [openComments, setOpenComments] = useState(false);
   const location = useLocation();
+
   const message = location.state?.message;
   const [flashMessage, setFlashMessage] = useState(message || "");
   const { id } = useParams();
@@ -65,14 +71,13 @@ function Project() {
     };
 
     makeRequest();
-  }, [id, message]);
-
+  }, [id, refreshKey]);
   return (
     <>
       {isLoading
         ? "Loading....."
         : project && (
-            <div>
+            <div style={{ pointerEvents: isSubmitting ? "none" : "auto" }}>
               <p>{flashMessage}</p>
               <h3>{project.title} </h3>
               <span style={{ fontSize: 12 }}>
@@ -132,17 +137,41 @@ function Project() {
                     <br />
                   </div>
                 ))}
-                Comments: <br />
-                {comments?.map((c: CommentType) => (
-                  <Comment
-                    key={c.id}
-                    user={c.user}
-                    isReply={false}
-                    content={c.content}
-                    replies={c.replies}
-                  />
-                ))}
+                <button onClick={() => setOpenComments((prev) => !prev)}>
+                  <FaRegComment />
+                </button>{" "}
               </div>
+              {!openComments && comments.length > 0 && (
+                <div style={{ border: "2px solid white", borderRadius: "4px" }}>
+                  <p>
+                    <img src={comments[0].user.avatarURL} alt="userProfile" />
+                    &nbsp; {comments[0].user.username}
+                  </p>
+                  <p>&nbsp;{comments[0].content}</p>
+                </div>
+              )}
+              {openComments && (
+                <div style={{ border: "2px solid white", borderRadius: "4px" }}>
+                  {comments?.map((c: CommentType) => (
+                    <Comment
+                      setRefreshKey={setRefreshKey}
+                      key={c.id}
+                      cId={c.id}
+                      author={c.user}
+                      projectId={c.projectId}
+                      isReply={false}
+                      content={c.content}
+                      replies={c.replies}
+                    />
+                  ))}
+
+                  <CommentForm
+                    projectId={project.id}
+                    setRefreshKey={setRefreshKey}
+                    setIsSubmitting={setIsSubmitting}
+                  />
+                </div>
+              )}
               {user?.id === project.userId ? (
                 "You cannot review your own project"
               ) : project.reviews.some((r) => r.userId === user?.id) ? (
@@ -153,7 +182,11 @@ function Project() {
                 </button>
               )}{" "}
               {isCreateReview && (
-                <ReviewForm setIsCreateReview={setIsCreateReview} />
+                <ReviewForm
+                  setIsCreateReview={setIsCreateReview}
+                  setRefreshKey={setRefreshKey}
+                  setFlashMessage={setFlashMessage}
+                />
               )}
               {error}
             </div>

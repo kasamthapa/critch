@@ -1,12 +1,16 @@
 import { useState } from "react";
 import type { CreateReviewRequest } from "../types/review.types";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { createReview } from "../api/project.api";
 
 function ReviewForm({
   setIsCreateReview,
+  setRefreshKey,
+  setFlashMessage,
 }: {
   setIsCreateReview: React.Dispatch<React.SetStateAction<boolean>>;
+  setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
+  setFlashMessage: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const initialValue = {
     codeQuality: 0,
@@ -18,7 +22,7 @@ function ReviewForm({
   const [formValues, setFormValues] = useState(initialValue);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
+
   const { id } = useParams();
   const projectId = Number(id);
 
@@ -43,9 +47,8 @@ function ReviewForm({
     try {
       const response = await createReview(payload);
       setIsCreateReview(false);
-      navigate(`/projects/${projectId}`, {
-        state: { message: response.message },
-      });
+      setRefreshKey((prev) => prev + 1);
+      setFlashMessage(response.message);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

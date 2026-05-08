@@ -12,6 +12,7 @@ export interface CommentType {
   replies?: CommentType[];
 }
 export interface createCommentRequest {
+  projectId: number;
   content: string;
   parentId?: number;
 }
