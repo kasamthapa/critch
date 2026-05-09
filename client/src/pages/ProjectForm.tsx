@@ -36,7 +36,7 @@ function ProjectForm() {
     if (file) fd.append("screenshot", file);
     try {
       const response = await createProject(fd);
-      navigate("/", {
+      navigate(`/projects/${response.data.id}`, {
         state: { message: response.message },
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
