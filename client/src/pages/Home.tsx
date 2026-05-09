@@ -68,7 +68,10 @@ export function Home() {
               </option>
             ))}
           </select>
-          <div className="tagButtons"></div>
+          <br />
+          <button onClick={() => navigate("/projects/new")}>
+            Create Project
+          </button>
           <div
             className="projectsContainer"
             style={{

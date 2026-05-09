@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { CommentType, CommentAuthor } from "../types/comment.types";
 import { createComment } from "../api/project.api";
-
+import { SlArrowDown } from "react-icons/sl";
 function Comment({
   author,
   content,
@@ -9,12 +9,14 @@ function Comment({
   isReply,
   cId,
   projectId,
+
   setRefreshKey,
 }: {
   cId: number;
   author: CommentAuthor;
   content: string;
   projectId: number;
+
   replies?: CommentType[];
   isReply: boolean;
   setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
@@ -27,6 +29,7 @@ function Comment({
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formValue, setFormValue] = useState(initialValue);
   const [error, setError] = useState("");
+  const [seeReplies, setSeeReplies] = useState<boolean>(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -64,6 +67,7 @@ function Comment({
           {author.username}
         </p>
         <p>{content}</p>
+
         {isFormOpen && (
           <form onSubmit={handleSubmit}>
             <input
@@ -78,22 +82,32 @@ function Comment({
         {!isFormOpen && (
           <button onClick={() => setIsFormOpen(true)}>reply</button>
         )}
+        {!isFormOpen && isReply == false && (replies?.length ?? 0) > 0 && (
+          <div>
+            <span>See replies..{replies?.length}</span>
+            <button onClick={() => setSeeReplies((prev) => !prev)}>
+              <SlArrowDown />
+            </button>
+          </div>
+        )}
       </div>
-      <div>
-        {replies !== null &&
-          replies?.map((r) => (
-            <Comment
-              setRefreshKey={setRefreshKey}
-              projectId={projectId}
-              key={r.id}
-              cId={r.id}
-              isReply={true}
-              author={r.user}
-              content={r.content}
-              replies={r.replies}
-            />
-          ))}
-      </div>
+      {seeReplies && (
+        <div>
+          {replies !== null &&
+            replies?.map((r) => (
+              <Comment
+                setRefreshKey={setRefreshKey}
+                projectId={projectId}
+                key={r.id}
+                cId={r.id}
+                isReply={true}
+                author={r.user}
+                content={r.content}
+                replies={r.replies}
+              />
+            ))}
+        </div>
+      )}
       {error}
     </div>
   );

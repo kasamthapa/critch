@@ -1,4 +1,5 @@
 import type {
+  CreateProjectResponse,
   GetAllProjectResponse,
   GetOneProjectResponse,
 } from "../types/project.types";
@@ -21,6 +22,14 @@ export const getOneProject = async (
   const response = await api.get(`/projects/${id}`);
   return response.data;
 };
+
+export const createProject = async (
+  data: FormData,
+): Promise<CreateProjectResponse> => {
+  const response = await api.post("/projects/create", data);
+  return response.data;
+};
+
 export const createReview = async ({
   projectId,
   codeQuality,

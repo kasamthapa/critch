@@ -154,7 +154,7 @@ export interface ProjectDetail extends ProjectSummary {
   reviews: Review[];
   comments: CommentType[];
 }
-export interface CreatedProject {
+export interface CreatedProjectResponse {
   id: number;
   title: string;
   description: string;
@@ -170,4 +170,4 @@ export interface CreatedProject {
 }
 export type GetAllProjectResponse = ApiResponse<{ projects: ProjectSummary[] }>;
 export type GetOneProjectResponse = ApiResponse<ProjectDetail>;
-export type CreateProjectResponse = ApiResponse<CreateProjectResponse>;
+export type CreateProjectResponse = ApiResponse<CreatedProjectResponse>;

@@ -5,6 +5,7 @@ import { SignIn } from "./pages/SignIn";
 import { Home } from "./pages/Home";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import Project from "./pages/Project";
+import ProjectForm from "./pages/ProjectForm";
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route element={<ProtectedRoutes />}>
             <Route path="/dashboard" />
-            <Route path="/projects/new" />
+            <Route path="/projects/new" element={<ProjectForm />} />
           </Route>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
