@@ -1,5 +1,6 @@
 import type {
   CreateProjectResponse,
+  editProjectRequest,
   GetAllProjectResponse,
   GetOneProjectResponse,
 } from "../types/project.types";
@@ -9,6 +10,7 @@ import type {
 } from "../types/review.types";
 import type { createCommentRequest } from "../types/comment.types";
 import { api } from "./axiosInstance";
+import type { ApiResponse } from "../types/apiResponse.types";
 
 export const getProjects = async (
   tag?: string,
@@ -30,6 +32,19 @@ export const createProject = async (
   return response.data;
 };
 
+export const editProject = async (
+  data: editProjectRequest,
+  projectId: string,
+): Promise<CreateProjectResponse> => {
+  const response = await api.put(`/projects/edit/${projectId}`, data);
+  return response.data;
+};
+export const deleteProject = async (
+  projectId: number,
+): Promise<ApiResponse<null>> => {
+  const response = await api.delete(`/projects/delete/${projectId}`);
+  return response.data;
+};
 export const createReview = async ({
   projectId,
   codeQuality,
