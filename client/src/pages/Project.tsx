@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { ProjectDetail } from "../types/project.types";
-import { getOneProject } from "../api/project.api";
+import { deleteProject, getOneProject } from "../api/project.api";
 import type { CommentType } from "../types/comment.types";
 import Comment from "../components/Comment";
 import ReviewForm from "../components/ReviewForm";
 import { useAuth } from "../hooks/useAuth";
 import CommentForm from "../components/CommentForm";
 import { FaRegComment } from "react-icons/fa";
+import { SlOptions } from "react-icons/sl";
 function Project() {
   const [project, setProject] = useState<ProjectDetail>();
   const [error, setError] = useState<string>();
@@ -17,13 +18,31 @@ function Project() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [openComments, setOpenComments] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const location = useLocation();
-
+  const navigate = useNavigate();
   const message = location.state?.message;
   const [flashMessage, setFlashMessage] = useState(message || "");
   const { id } = useParams();
   const { user } = useAuth();
 
+  async function handleDelete() {
+    if (!project || project.id == undefined) {
+      setError("projectId or project undefined");
+      return;
+    }
+
+    try {
+      const response = await deleteProject(project.id);
+      navigate("/", {
+        state: { message: response.message },
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      setError(e.response?.data?.message);
+    }
+  }
   useEffect(() => {
     setFlashMessage(message);
   }, [message]);
@@ -77,13 +96,59 @@ function Project() {
       {isLoading
         ? "Loading....."
         : project && (
-            <div style={{ pointerEvents: isSubmitting ? "none" : "auto" }}>
+            <div
+              style={{
+                pointerEvents: isSubmitting ? "none" : "auto",
+                margin: "4px",
+              }}
+            >
               <p>{flashMessage}</p>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div>
+                  <span style={{ fontSize: 12 }}>
+                    Posted on:{project.created_at}
+                  </span>
+                  <p>
+                    <img src={project.author.avatarURL} alt="userProfile" />:
+                    {project.author.username}
+                  </p>
+                </div>
+                <div>
+                  {user?.id === project.userId && (
+                    <button onClick={() => setIsMenuOpen((prev) => !prev)}>
+                      <SlOptions />
+                    </button>
+                  )}
+                  {isMenuOpen && (
+                    <div>
+                      <p
+                        onClick={() =>
+                          navigate(`/projects/edit/${project.id}`, {
+                            state: {
+                              title: project.title,
+                              description: project.description,
+                              liveURL: project.liveURL,
+                              githubURL: project.githubURL,
+                              tags: project.tags.join(","),
+                            },
+                          })
+                        }
+                      >
+                        Edit
+                      </p>
+                      <p onClick={() => setIsDialogOpen(true)}>Delete</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {isDialogOpen && (
+                <div role="alertdialog" style={{ zIndex: "100" }}>
+                  <p>Are you sure?</p>
+                  <button onClick={handleDelete}>Confirm</button>&nbsp;
+                  <button onClick={() => setIsDialogOpen(false)}>Cancel</button>
+                </div>
+              )}
               <h3>{project.title} </h3>
-              <span style={{ fontSize: 12 }}>
-                Posted on:{project.created_at}
-              </span>
-              <p>Author:{project.author.username}</p>
               <p>{project.description}</p>
               <a href={project.liveURL} target="_blank">
                 Try live
