@@ -125,7 +125,13 @@ export interface CreateProjectRequest {
   tags: string; // comma separated — "node,react,typescript"
   screenshot: File; // file upload — added separately since backend schema doesn't cover it
 }
-
+export interface editProjectRequest {
+  title: string;
+  description: string;
+  liveURL: string;
+  githubURL: string;
+  tags: string;
+}
 export interface ProjectAuthor {
   username: string;
   avatarURL: string;
