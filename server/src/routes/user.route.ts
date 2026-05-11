@@ -15,6 +15,7 @@ router.post("/signup", asyncHandler(userSignupController));
 router.post("/signin", asyncHandler(userSignInController));
 router.post("/refresh", asyncHandler(refreshTokenController));
 router.get("/me", authMiddleware, asyncHandler(getCurrentUser));
+router.get("/username", asyncHandler(getUserProfile));
 router.post("/logout", authMiddleware, asyncHandler(logoutController));
 
 export default router;

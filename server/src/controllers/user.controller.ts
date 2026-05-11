@@ -161,6 +161,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
       username: username,
     },
     select: {
+      id: true,
       username: true,
       email: true,
       bio: true,
@@ -168,8 +169,15 @@ export const getUserProfile = async (req: Request, res: Response) => {
       reviewCount: true,
     },
   });
+  const reviewGivenCount = await prisma.review.count({
+    where: { userId: user?.id },
+  });
+  console.log(reviewGivenCount);
   if (!user) throw new ApiError(404, "User not found");
-  res
-    .status(200)
-    .json(new ApiResponse(200, "User profile fetched successfully", user));
+  res.status(200).json(
+    new ApiResponse(200, "User profile fetched successfully", {
+      ...user,
+      reviewGivenCount,
+    }),
+  );
 };
