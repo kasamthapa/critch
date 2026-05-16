@@ -160,14 +160,14 @@ export const getUserProfile = async (req: Request, res: Response) => {
     where: {
       username: username,
     },
-    select: {
-      id: true,
-      username: true,
-      email: true,
-      avatarURL: true,
-      bio: true,
-      reputationScore: true,
-      reviewCount: true,
+    include: {
+      projects: {
+        select: {
+          id: true,
+          title: true,
+          avgRating: true,
+        },
+      },
     },
   });
   const reviewGivenCount = await prisma.review.count({
