@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getProjects } from "../api/project.api";
 import type { ProjectSummary } from "../types/project.types";
+import { useAuth } from "../hooks/useAuth";
 
 export function Home() {
   const [projects, setProjects] = useState<Array<ProjectSummary>>([]);
@@ -13,6 +14,7 @@ export function Home() {
     location.state?.message || "",
   );
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedTag, setSelectedTag] = useState("");
   function handleTagSelect(e: React.ChangeEvent<HTMLSelectElement>) {
     setSelectedTag(e.target.value);
@@ -69,9 +71,11 @@ export function Home() {
             ))}
           </select>
           <br />
-          <button onClick={() => navigate("/projects/new")}>
-            Create Project
-          </button>
+          {user && (
+            <button onClick={() => navigate("/projects/new")}>
+              Create Project
+            </button>
+          )}
           <div
             className="projectsContainer"
             style={{

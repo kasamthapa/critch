@@ -21,6 +21,7 @@ function Project() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const location = useLocation();
+
   const navigate = useNavigate();
   const message = location.state?.message;
   const [flashMessage, setFlashMessage] = useState(message || "");
@@ -229,22 +230,25 @@ function Project() {
                       replies={c.replies}
                     />
                   ))}
-
-                  <CommentForm
-                    projectId={project.id}
-                    setRefreshKey={setRefreshKey}
-                    setIsSubmitting={setIsSubmitting}
-                  />
+                  {user && (
+                    <CommentForm
+                      projectId={project.id}
+                      setRefreshKey={setRefreshKey}
+                      setIsSubmitting={setIsSubmitting}
+                    />
+                  )}
                 </div>
               )}
               {user?.id === project.userId ? (
                 "You cannot review your own project"
               ) : project.reviews.some((r) => r.userId === user?.id) ? (
                 "You have already reviewed this project"
-              ) : (
+              ) : user ? (
                 <button onClick={() => setIsCreateReview((prev) => !prev)}>
                   Create Review
                 </button>
+              ) : (
+                "Login to review and comment on project"
               )}{" "}
               {isCreateReview && (
                 <ReviewForm

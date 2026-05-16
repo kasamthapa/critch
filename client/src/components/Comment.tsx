@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CommentType, CommentAuthor } from "../types/comment.types";
 import { createComment } from "../api/project.api";
 import { SlArrowDown } from "react-icons/sl";
+import { useAuth } from "../hooks/useAuth";
 function Comment({
   author,
   content,
@@ -30,7 +31,7 @@ function Comment({
   const [formValue, setFormValue] = useState(initialValue);
   const [error, setError] = useState("");
   const [seeReplies, setSeeReplies] = useState<boolean>(false);
-
+  const { user } = useAuth();
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setFormValue((prev) => ({
@@ -79,7 +80,7 @@ function Comment({
             <button type="submit">reply</button>
           </form>
         )}
-        {!isFormOpen && (
+        {!isFormOpen && user && (
           <button onClick={() => setIsFormOpen(true)}>reply</button>
         )}
         {!isFormOpen && isReply == false && (replies?.length ?? 0) > 0 && (

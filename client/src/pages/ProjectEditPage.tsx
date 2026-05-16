@@ -19,6 +19,7 @@ function ProjectEditPage() {
   });
   useEffect(() => {
     if (!location.state) navigate(`/projects/${projectId}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleChange(

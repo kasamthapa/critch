@@ -43,7 +43,6 @@ export const createProjectController = async (
         create: { name: tag },
         update: {},
       });
-      console.log(upsertedTags);
       TagIds.push(upsertedTags.id);
     }
 
