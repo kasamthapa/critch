@@ -164,6 +164,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
       id: true,
       username: true,
       email: true,
+      avatarURL: true,
       bio: true,
       reputationScore: true,
       reviewCount: true,
