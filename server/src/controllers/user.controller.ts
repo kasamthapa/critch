@@ -11,6 +11,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { generateAccessToken, generateRefreshToken } from "../utils/tokenGen";
 import { JwtPayload } from "../types/jwtPayload";
 import { CustomRequest } from "../types/customRequest";
+import { uploadOnCloudinary } from "../utils/cloudinary";
 
 export const userSignupController = async (req: Request, res: Response) => {
   const { username, email, password } = userSignupSchema.parse(req.body);
@@ -180,4 +181,34 @@ export const getUserProfile = async (req: Request, res: Response) => {
       reviewGivenCount,
     }),
   );
+};
+
+export const avatarUploadController = async (
+  req: CustomRequest,
+  res: Response,
+) => {
+  const userId = Number(req.user?.userId);
+  if (!req.file)
+    throw new ApiError(
+      400,
+      "No file uploaded. Please select a file to continue.",
+    );
+  const localFilePath = req.file.path;
+  const avatar = await uploadOnCloudinary(localFilePath);
+  if (!avatar)
+    throw new ApiError(
+      500,
+      "Failed to upload image to storage. Please try again later.",
+    );
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      avatarURL: avatar.url,
+    },
+  });
+  res
+    .status(200)
+    .json(new ApiResponse(200, "avatar uploaded  successfully", {}));
 };

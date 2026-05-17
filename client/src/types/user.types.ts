@@ -11,7 +11,7 @@ interface userProject {
   avgRating: string;
 }
 export interface User extends UserSummary {
-  avatarUrl: string;
+  avatarURL: string;
   bio: string;
   reputationScore: string;
   reviewCount: number;
@@ -20,3 +20,4 @@ export interface User extends UserSummary {
 }
 
 export type getUserProfileResponse = ApiResponse<User>;
+export type avatarUploadResponse = ApiResponse<null>;
