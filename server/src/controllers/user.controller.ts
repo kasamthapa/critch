@@ -212,3 +212,20 @@ export const avatarUploadController = async (
     .status(200)
     .json(new ApiResponse(200, "avatar uploaded  successfully", {}));
 };
+
+export const bioUpdateController = async (
+  req: CustomRequest,
+  res: Response,
+) => {
+  const userId = Number(req.user?.userId);
+  const { bio } = req.body;
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      bio,
+    },
+  });
+  res.status(200).json(new ApiResponse(200, "bio added  successfully", {}));
+};

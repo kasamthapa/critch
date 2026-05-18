@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   avatarUploadController,
+  bioUpdateController,
   getCurrentUser,
   getUserProfile,
 } from "../controllers/user.controller";
@@ -16,5 +17,6 @@ router.post(
   upload.single("avatar"),
   asyncHandler(avatarUploadController),
 );
+router.post("/bioUpdate", authMiddleware, asyncHandler(bioUpdateController));
 
 export default router;
