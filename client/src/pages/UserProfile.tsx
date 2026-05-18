@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getUserProfile } from "../api/user.api";
+import { bioUpdate, getUserProfile } from "../api/user.api";
 import { FaCamera } from "react-icons/fa";
 import { FaUser } from "react-icons/fa6";
 import type { User } from "../types/user.types";
@@ -13,6 +13,7 @@ function UserProfile() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAvatarOpen, setIsAvatarOpen] = useState<boolean>(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [bio, setBio] = useState("");
   const { username } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -36,11 +37,29 @@ function UserProfile() {
     };
     makeRequest();
   }, [username, refreshKey]);
-
+  useEffect(() => {
+    if (userProfile) setBio(userProfile.bio);
+  }, [userProfile]);
   function handleProjectClick(id: number): void {
     navigate(`/projects/${id}`);
   }
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
+    setBio(e.target.value);
+  }
 
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    try {
+      await bioUpdate(bio);
+      setRefreshKey((prev) => prev + 1);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      setError(e.response?.data?.message);
+    }
+  }
   return (
     <div className=" min-h-screen relative">
       <div>
@@ -84,10 +103,33 @@ function UserProfile() {
                     <p className="text-3xl">@{userProfile.username}</p>
                   </div>
                 </div>
+                <p className="text-[20px] font-medium">Bio</p>
+                {user?.username === username ? (
+                  <form
+                    onSubmit={handleSubmit}
+                    className="bio w-full h-21 border-2 border-black rounded mb-3"
+                  >
+                    <textarea
+                      name="bio"
+                      value={bio}
+                      className="w-full h-20 outline-none"
+                      onChange={handleChange}
+                    ></textarea>
+                    {userProfile.bio !== bio && (
+                      <button
+                        type="submit"
+                        className="bg-blue-300 p-1 ml-1 mb-1 rounded w-13 font-bold border-2 border-black"
+                      >
+                        save
+                      </button>
+                    )}
+                  </form>
+                ) : (
+                  <div className="bio w-full h-20 border-2 border-black rounded">
+                    {bio ? <p>{bio}</p> : <p>Bio..</p>}
+                  </div>
+                )}
 
-                <div className="bio w-full border-2 border-black rounded mb-3">
-                  <p>{userProfile.bio}</p>
-                </div>
                 <div className="reputation w-full border-2 border-black rounded font-extrabold mb-3 text-red-600">
                   <p>ReputationScore:{userProfile.reputationScore}</p>
                 </div>

@@ -15,3 +15,6 @@ export const avatarUpload = async (
   const response = await api.post("/users/avatarUpload", data);
   return response.data;
 };
+export const bioUpdate = async (bio: string) => {
+  await api.post("/users/bioUpdate", { bio });
+};
