@@ -40,7 +40,6 @@ router.post(
   asyncHandler(createReviewController),
 );
 router.get("/:projectId/reviews", asyncHandler(getReviewController));
-export default router;
 
 router.post(
   "/:projectId/comments",
@@ -48,3 +47,4 @@ router.post(
   asyncHandler(createCommentController),
 );
 router.get("/:projectId/comments", asyncHandler(getCommentController));
+export default router;

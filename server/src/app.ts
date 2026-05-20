@@ -6,6 +6,7 @@ import userAuth from "./routes/user.route";
 import { errorMiddleware } from "./middleware/error.middleware";
 import projectRoute from "./routes/project.route";
 import userProfileRoutes from "./routes/userProfile.route";
+import dashboardRoute from "./routes/dashboard.route";
 const app = express();
 
 app.use(
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/api/v1/auth", userAuth);
 app.use("/api/v1/projects", projectRoute);
+app.use("/api/v1/dashboard", dashboardRoute);
 app.use("/api/v1/users", userProfileRoutes);
 app.get("/", (req, res) => {
   console.log("cookies", req.cookies);
