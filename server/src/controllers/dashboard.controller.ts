@@ -12,10 +12,17 @@ export const dashboardPageController = async (
     where: {
       userId,
     },
-    select: {
-      id: true,
-      title: true,
-      reviews: true,
+    include: {
+      reviews: {
+        include: {
+          user: {
+            select: {
+              username: true,
+              avatarURL: true,
+            },
+          },
+        },
+      },
     },
   });
   const reviewsGiven = await prisma.review.findMany({
