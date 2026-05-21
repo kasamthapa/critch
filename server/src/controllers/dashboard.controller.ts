@@ -23,6 +23,25 @@ export const dashboardPageController = async (
           },
         },
       },
+      tags: {
+        include: {
+          tag: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      user: {
+        select: {
+          username: true,
+          avatarURL: true,
+          reputationScore: true,
+        },
+      },
+      _count: {
+        select: { reviews: true },
+      },
     },
   });
   const reviewsGiven = await prisma.review.findMany({
