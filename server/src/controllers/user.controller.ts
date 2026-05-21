@@ -63,6 +63,7 @@ export const userSignInController = async (req: Request, res: Response) => {
     id: user.id,
     username: user.username,
     email: user.email,
+    avatarUrl: user.avatarURL,
   };
 
   res.cookie("refreshToken", refreshToken, {
