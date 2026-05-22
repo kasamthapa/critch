@@ -38,7 +38,7 @@ function ProjectEditPage() {
     const payload: editProjectRequest = { ...formValues };
     try {
       const response = await editProject(payload, projectId);
-      navigate(`/projects/${projectId}`, {
+      navigate(location.state?.from, {
         state: { message: response.message },
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

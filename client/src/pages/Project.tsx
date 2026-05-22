@@ -131,6 +131,7 @@ function Project() {
                               liveURL: project.liveURL,
                               githubURL: project.githubURL,
                               tags: project.tags.join(","),
+                              from: `//projects/${project.id}`,
                             },
                           })
                         }

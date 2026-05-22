@@ -12,6 +12,18 @@ export interface ReviewAuthor {
   username: string;
   avatarURL: string;
 }
+export interface SimpleReview {
+  id: number;
+  codeQuality: string;
+  uiDesign: string;
+  ideaScore: string;
+  documentation: string;
+  comment: string;
+  avgReview: string;
+  created_at: string;
+  userId: number;
+  projectId: number;
+}
 export interface Review {
   id: number;
   codeQuality: string;

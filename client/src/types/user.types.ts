@@ -4,6 +4,7 @@ export interface UserSummary {
   id: number;
   username: string;
   email: string;
+  avatarUrl: string;
 }
 interface userProject {
   id: number;

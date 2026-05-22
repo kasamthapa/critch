@@ -44,6 +44,7 @@ export const dashboardPageController = async (
       },
     },
   });
+
   const reviewsGiven = await prisma.review.findMany({
     where: { userId },
     include: {
@@ -54,8 +55,12 @@ export const dashboardPageController = async (
       },
     },
   });
+  const formattedProjects = projectData.map((p) => ({
+    ...p,
+    tags: p.tags.map((t) => t.tag.name),
+  }));
   const responseBody = {
-    projects: projectData,
+    projects: formattedProjects,
     reviewsGiven,
   };
   res.status(200).json(new ApiResponse(200, "", responseBody));

@@ -8,6 +8,7 @@ import Project from "./pages/Project";
 import ProjectForm from "./pages/ProjectForm";
 import ProjectEditPage from "./pages/ProjectEditPage";
 import UserProfile from "./pages/UserProfile";
+import DashBoard from "./pages/DashBoard";
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route element={<ProtectedRoutes />}>
-            <Route path="/dashboard" />
+            <Route path="/dashboard" element={<DashBoard />} />
             <Route path="/projects/new" element={<ProjectForm />} />
             <Route
               path="/projects/edit/:projectId"
