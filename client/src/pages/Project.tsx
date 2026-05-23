@@ -365,7 +365,35 @@ function Project() {
                 ))}
               </div>
             </div>
+            {/* Review Conditions */}
+            <div className="mt-6">
+              {user?.id === project.userId ? (
+                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-500">
+                  You cannot review your own project
+                </div>
+              ) : project.reviews.some((r) => r.userId === user?.id) ? (
+                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-500">
+                  You have already reviewed this project
+                </div>
+              ) : !user ? (
+                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-500">
+                  Login to review and comment on project
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
 
+            {/* Review Form */}
+            {isCreateReview && (
+              <div className="mt-6">
+                <ReviewForm
+                  setIsCreateReview={setIsCreateReview}
+                  setRefreshKey={setRefreshKey}
+                  setFlashMessage={setFlashMessage}
+                />
+              </div>
+            )}
             {/* Comments */}
             <div className="mt-6 bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
@@ -426,36 +454,6 @@ function Project() {
                 </div>
               )}
             </div>
-
-            {/* Review Conditions */}
-            <div className="mt-6">
-              {user?.id === project.userId ? (
-                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-500">
-                  You cannot review your own project
-                </div>
-              ) : project.reviews.some((r) => r.userId === user?.id) ? (
-                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-500">
-                  You have already reviewed this project
-                </div>
-              ) : !user ? (
-                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-500">
-                  Login to review and comment on project
-                </div>
-              ) : (
-                ""
-              )}
-            </div>
-
-            {/* Review Form */}
-            {isCreateReview && (
-              <div className="mt-6">
-                <ReviewForm
-                  setIsCreateReview={setIsCreateReview}
-                  setRefreshKey={setRefreshKey}
-                  setFlashMessage={setFlashMessage}
-                />
-              </div>
-            )}
 
             {/* Error */}
             {error && (

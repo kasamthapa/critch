@@ -14,16 +14,13 @@ export function Home() {
 
   const [tags, setTags] = useState<Array<string>>([]);
   const [selectedTag, setSelectedTag] = useState("");
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const [flashMessage, setFlashMessage] = useState(
     location.state?.message || "",
   );
 
   const { user } = useAuth();
-
-  function handleTagSelect(e: React.ChangeEvent<HTMLSelectElement>) {
-    setSelectedTag(e.target.value);
-  }
 
   function handleProjectClick(id: number) {
     navigate(`/projects/${id}`);
@@ -101,29 +98,86 @@ export function Home() {
         </div>
 
         {/* Filter */}
-        <div className="bg-white border border-zinc-200 rounded-2xl p-4 mb-8 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
-            <label className="text-sm font-medium text-zinc-700">
-              Filter by tag
-            </label>
+        <div className="relative mb-8">
+          <div className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-sm">
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-zinc-500 font-medium">
+                Browse Projects
+              </p>
 
-            <select
-              name="tag"
-              onChange={handleTagSelect}
-              value={selectedTag}
-              className="border border-zinc-200 rounded-xl px-4 py-2 bg-zinc-50 outline-none focus:ring-2 focus:ring-black"
-            >
-              <option value="">All projects</option>
+              <div className="relative w-full md:w-72">
+                {/* Trigger */}
+                <button
+                  onClick={() => setIsOpen((prev) => !prev)}
+                  className={`w-full flex items-center justify-between rounded-xl border px-4 py-3 transition text-left
+          ${
+            isOpen
+              ? "border-black bg-white shadow-sm"
+              : "border-zinc-200 bg-zinc-50 hover:bg-zinc-100"
+          }`}
+                >
+                  <span
+                    className={`font-medium ${
+                      selectedTag ? "text-zinc-800" : "text-zinc-500"
+                    }`}
+                  >
+                    {selectedTag || "All projects"}
+                  </span>
 
-              {tags.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
+                  <span
+                    className={`text-sm transition-transform duration-200 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  >
+                    ▼
+                  </span>
+                </button>
+
+                {/* Dropdown */}
+                {isOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-full overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100">
+                    {/* All Projects */}
+                    <button
+                      onClick={() => {
+                        setSelectedTag("");
+                        setIsOpen(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left transition border-b border-zinc-100
+              ${
+                selectedTag === ""
+                  ? "bg-black text-white"
+                  : "hover:bg-zinc-100 text-zinc-700"
+              }`}
+                    >
+                      All projects
+                    </button>
+
+                    {/* Tags */}
+                    <div className="max-h-60 overflow-y-auto">
+                      {tags.map((tag) => (
+                        <button
+                          key={tag}
+                          onClick={() => {
+                            setSelectedTag(tag);
+                            setIsOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 text-left transition
+                  ${
+                    selectedTag === tag
+                      ? "bg-black text-white"
+                      : "hover:bg-zinc-100 text-zinc-700"
+                  }`}
+                        >
+                          #{tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-
         {/* Loading */}
         {isLoading && (
           <div className="text-center py-20 text-zinc-500">
