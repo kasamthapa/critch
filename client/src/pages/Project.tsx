@@ -93,132 +93,314 @@ function Project() {
     makeRequest();
   }, [id, refreshKey]);
   return (
-    <>
-      {isLoading
-        ? "Loading....."
-        : project && (
-            <div
-              style={{
-                pointerEvents: isSubmitting ? "none" : "auto",
-                margin: "4px",
-              }}
-            >
-              <p>{flashMessage}</p>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div>
-                  <span style={{ fontSize: 12 }}>
-                    Posted on:{project.created_at}
-                  </span>
-                  <p>
-                    <img src={project.author.avatarURL} alt="userProfile" />:
-                    {project.author.username}
+    <div className="min-h-screen bg-zinc-100 p-6">
+      {isLoading ? (
+        <div className="flex items-center justify-center text-zinc-500 py-20">
+          Loading project...
+        </div>
+      ) : (
+        project && (
+          <div
+            className="max-w-5xl mx-auto"
+            style={{
+              pointerEvents: isSubmitting ? "none" : "auto",
+            }}
+          >
+            {/* Flash Message */}
+            {flashMessage && (
+              <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+                {flashMessage}
+              </div>
+            )}
+
+            {/* Project Card */}
+            <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+              {/* Image */}
+              <div className="h-[400px] bg-zinc-200 overflow-hidden">
+                <img
+                  src={project.screenshotURL}
+                  alt="projectScreenshot"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                {/* Top */}
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm text-zinc-500">
+                      Posted on {project.created_at}
+                    </p>
+
+                    <div className="flex items-center gap-3 mt-3">
+                      <img
+                        src={project.author.avatarURL}
+                        alt="userProfile"
+                        className="w-12 h-12 rounded-full object-cover border border-zinc-200"
+                      />
+
+                      <div>
+                        <p className="font-semibold text-zinc-800">
+                          {project.author.username}
+                        </p>
+
+                        <p className="text-sm text-zinc-500">Project Author</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Menu */}
+                  <div className="relative">
+                    {user?.id === project.userId && (
+                      <button
+                        onClick={() => setIsMenuOpen((prev) => !prev)}
+                        className="w-10 h-10 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center hover:bg-zinc-200 transition"
+                      >
+                        <SlOptions />
+                      </button>
+                    )}
+
+                    {isMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-40 bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden z-20">
+                        <button
+                          className="w-full text-left px-4 py-3 hover:bg-zinc-50 text-zinc-700 transition"
+                          onClick={() =>
+                            navigate(`/projects/edit/${project.id}`, {
+                              state: {
+                                title: project.title,
+                                description: project.description,
+                                liveURL: project.liveURL,
+                                githubURL: project.githubURL,
+                                tags: project.tags.join(","),
+                                from: `//projects/${project.id}`,
+                              },
+                            })
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="w-full text-left px-4 py-3 hover:bg-red-50 text-red-500 transition"
+                          onClick={() => setIsDialogOpen(true)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Delete Dialog */}
+                {isDialogOpen && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div
+                      role="alertdialog"
+                      className="w-[90%] max-w-md bg-white border border-zinc-200 rounded-2xl p-6 shadow-xl"
+                    >
+                      <h2 className="text-2xl font-semibold text-zinc-800 mb-2">
+                        Delete Project
+                      </h2>
+
+                      <p className="text-zinc-500 mb-6">
+                        Are you sure you want to delete this project?
+                      </p>
+
+                      <div className="flex justify-end gap-3">
+                        <button
+                          onClick={() => setIsDialogOpen(false)}
+                          className="px-4 py-2 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-100 transition"
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          onClick={handleDelete}
+                          className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Title */}
+                <div className="mt-8">
+                  <h1 className="text-4xl font-bold text-zinc-800">
+                    {project.title}
+                  </h1>
+
+                  <p className="text-zinc-600 leading-relaxed mt-4">
+                    {project.description}
                   </p>
                 </div>
-                <div>
-                  {user?.id === project.userId && (
-                    <button onClick={() => setIsMenuOpen((prev) => !prev)}>
-                      <SlOptions />
-                    </button>
-                  )}
-                  {isMenuOpen && (
-                    <div>
-                      <p
-                        onClick={() =>
-                          navigate(`/projects/edit/${project.id}`, {
-                            state: {
-                              title: project.title,
-                              description: project.description,
-                              liveURL: project.liveURL,
-                              githubURL: project.githubURL,
-                              tags: project.tags.join(","),
-                              from: `//projects/${project.id}`,
-                            },
-                          })
-                        }
-                      >
-                        Edit
-                      </p>
-                      <p onClick={() => setIsDialogOpen(true)}>Delete</p>
-                    </div>
-                  )}
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2 mt-6">
+                  {project.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-sm text-zinc-700"
+                    >
+                      #{t}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-4 mt-8">
+                  <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-5">
+                    <p className="text-sm text-zinc-500">Reviews</p>
+
+                    <p className="text-3xl font-bold text-zinc-800 mt-1">
+                      {project._count.reviews}
+                    </p>
+                  </div>
+
+                  <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-5">
+                    <p className="text-sm text-zinc-500">Average Rating</p>
+
+                    <p className="text-3xl font-bold text-zinc-800 mt-1">
+                      ⭐ {project.avgRating}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Links */}
+                <div className="flex flex-wrap gap-4 mt-8">
+                  <a
+                    href={project.liveURL}
+                    target="_blank"
+                    className="px-5 py-3 rounded-xl bg-black text-white hover:bg-zinc-800 transition"
+                  >
+                    Live Preview
+                  </a>
+
+                  <a
+                    href={project.githubURL}
+                    target="_blank"
+                    className="px-5 py-3 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 transition"
+                  >
+                    View Code
+                  </a>
                 </div>
               </div>
-              {isDialogOpen && (
-                <div role="alertdialog" style={{ zIndex: "100" }}>
-                  <p>Are you sure?</p>
-                  <button onClick={handleDelete}>Confirm</button>&nbsp;
-                  <button onClick={() => setIsDialogOpen(false)}>Cancel</button>
-                </div>
-              )}
-              <h3>{project.title} </h3>
-              <p>{project.description}</p>
-              <a href={project.liveURL} target="_blank">
-                Try live
-              </a>
-              <br />
-              <a href={project.githubURL} target="_blank">
-                View Code
-              </a>
-              <p>
-                {project.tags.map((t) => (
-                  <span key={t}>#{t}</span>
-                ))}
-              </p>
-              <img
-                src={project.screenshotURL}
-                alt="projectScreenshot"
-                width={100}
-                height={100}
-              />
-              <p>Reviews:{project._count.reviews}</p>
-              <p>AverageRating:{project.avgRating}</p>
-              <br />
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
+            </div>
+
+            {/* Reviews */}
+            <div className="mt-6 bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-zinc-800">
+                  Reviews
+                </h2>
+
+                <button
+                  onClick={() => setIsCreateReview((prev) => !prev)}
+                  className="px-4 py-2 rounded-xl bg-black text-white hover:bg-zinc-800 transition"
+                >
+                  Create Review
+                </button>
+              </div>
+
+              <div className="space-y-4">
                 {project.reviews.map((r) => (
                   <div
                     key={r.id}
-                    style={{
-                      display: "flex",
-                      width: "200px",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      border: "2px solid white",
-                      borderRadius: "4px",
-                    }}
+                    className="bg-zinc-50 border border-zinc-200 rounded-2xl p-5"
                   >
-                    <p>
-                      <img src={r.user.avatarURL} alt="userProfile" />
-                      &nbsp; {r.user.username}:<span>{r.comment}</span>
-                    </p>
+                    <div className="flex items-center gap-3 mb-5">
+                      <img
+                        src={r.user.avatarURL}
+                        alt="userProfile"
+                        className="w-12 h-12 rounded-full object-cover border border-zinc-200"
+                      />
 
-                    <div>CodeQuality:{r.codeQuality}/5</div>
-                    <div>Idea:{r.ideaScore}/5</div>
-                    <div>Documentation:{r.documentation}/5</div>
-                    <div>UI Design:{r.uiDesign}/5</div>
-                    <br />
+                      <div>
+                        <p className="font-semibold text-zinc-800">
+                          {r.user.username}
+                        </p>
+
+                        <p className="text-sm text-zinc-500">Reviewer</p>
+                      </div>
+                    </div>
+
+                    <p className="text-zinc-700 mb-5">{r.comment}</p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="bg-white border border-zinc-200 rounded-xl p-4">
+                        <p className="text-sm text-zinc-500">Code</p>
+
+                        <p className="text-xl font-bold text-zinc-800">
+                          {r.codeQuality}/5
+                        </p>
+                      </div>
+
+                      <div className="bg-white border border-zinc-200 rounded-xl p-4">
+                        <p className="text-sm text-zinc-500">Idea</p>
+
+                        <p className="text-xl font-bold text-zinc-800">
+                          {r.ideaScore}/5
+                        </p>
+                      </div>
+
+                      <div className="bg-white border border-zinc-200 rounded-xl p-4">
+                        <p className="text-sm text-zinc-500">Docs</p>
+
+                        <p className="text-xl font-bold text-zinc-800">
+                          {r.documentation}/5
+                        </p>
+                      </div>
+
+                      <div className="bg-white border border-zinc-200 rounded-xl p-4">
+                        <p className="text-sm text-zinc-500">UI</p>
+
+                        <p className="text-xl font-bold text-zinc-800">
+                          {r.uiDesign}/5
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 ))}
-                <button onClick={() => setOpenComments((prev) => !prev)}>
-                  <FaRegComment />
-                </button>{" "}
               </div>
+            </div>
+
+            {/* Comments */}
+            <div className="mt-6 bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-zinc-800">
+                  Comments
+                </h2>
+
+                <button
+                  onClick={() => setOpenComments((prev) => !prev)}
+                  className="w-11 h-11 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center hover:bg-zinc-200 transition"
+                >
+                  <FaRegComment />
+                </button>
+              </div>
+
               {!openComments && comments.length > 0 && (
-                <div style={{ border: "2px solid white", borderRadius: "4px" }}>
-                  <p>
-                    <img src={comments[0].user.avatarURL} alt="userProfile" />
-                    &nbsp; {comments[0].user.username}
-                  </p>
-                  <p>&nbsp;{comments[0].content}</p>
+                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <img
+                      src={comments[0].user.avatarURL}
+                      alt="userProfile"
+                      className="w-10 h-10 rounded-full object-cover border border-zinc-200"
+                    />
+
+                    <p className="font-semibold text-zinc-800">
+                      {comments[0].user.username}
+                    </p>
+                  </div>
+
+                  <p className="text-zinc-700">{comments[0].content}</p>
                 </div>
               )}
+
               {openComments && (
-                <div style={{ border: "2px solid white", borderRadius: "4px" }}>
+                <div className="space-y-4">
                   {comments?.map((c: CommentType) => (
                     <Comment
                       setRefreshKey={setRefreshKey}
@@ -231,37 +413,60 @@ function Project() {
                       replies={c.replies}
                     />
                   ))}
+
                   {user && (
-                    <CommentForm
-                      projectId={project.id}
-                      setRefreshKey={setRefreshKey}
-                      setIsSubmitting={setIsSubmitting}
-                    />
+                    <div className="pt-4 border-t border-zinc-200">
+                      <CommentForm
+                        projectId={project.id}
+                        setRefreshKey={setRefreshKey}
+                        setIsSubmitting={setIsSubmitting}
+                      />
+                    </div>
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Review Conditions */}
+            <div className="mt-6">
               {user?.id === project.userId ? (
-                "You cannot review your own project"
+                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-500">
+                  You cannot review your own project
+                </div>
               ) : project.reviews.some((r) => r.userId === user?.id) ? (
-                "You have already reviewed this project"
-              ) : user ? (
-                <button onClick={() => setIsCreateReview((prev) => !prev)}>
-                  Create Review
-                </button>
+                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-500">
+                  You have already reviewed this project
+                </div>
+              ) : !user ? (
+                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-zinc-500">
+                  Login to review and comment on project
+                </div>
               ) : (
-                "Login to review and comment on project"
-              )}{" "}
-              {isCreateReview && (
+                ""
+              )}
+            </div>
+
+            {/* Review Form */}
+            {isCreateReview && (
+              <div className="mt-6">
                 <ReviewForm
                   setIsCreateReview={setIsCreateReview}
                   setRefreshKey={setRefreshKey}
                   setFlashMessage={setFlashMessage}
                 />
-              )}
-              {error}
-            </div>
-          )}
-    </>
+              </div>
+            )}
+
+            {/* Error */}
+            {error && (
+              <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-600">
+                {error}
+              </div>
+            )}
+          </div>
+        )
+      )}
+    </div>
   );
 }
 

@@ -1,13 +1,16 @@
 import type { ApiResponse } from "./apiResponse.types";
 import type { ProjectSummary } from "./project.types";
-import type { Review, SimpleReview } from "./review.types";
+import type { Review } from "./review.types";
 
-export interface dashboardPage {
-  projects: ProjectSummary[];
-  reviewsGiven: SimpleReview[];
+export interface ReviewDetails extends Review {
+  project: { title: string };
 }
 export interface ProjectWithReviews extends ProjectSummary {
-  reviews: Review[];
+  reviews: ReviewDetails[];
+}
+export interface dashboardPage {
+  projects: ProjectWithReviews[];
+  reviewsGiven: ReviewDetails[];
 }
 export const DashboardContent = {
   MY_PROJECT: "myProjects",
