@@ -84,6 +84,12 @@ export const createProjectController = async (
 };
 
 export const getProjectController = async (req: Request, res: Response) => {
+  const cursor = req.query.cursor as string | undefined;
+  const limit = 10;
+  const decodedCursor = cursor
+    ? JSON.parse(Buffer.from(cursor, "base64").toString("utf-8"))
+    : null;
+
   let whereClause = {};
   if (req.query.tag) {
     whereClause = {
@@ -98,6 +104,9 @@ export const getProjectController = async (req: Request, res: Response) => {
   }
   const projects = await prisma.project.findMany({
     where: whereClause,
+    take: limit + 1,
+    cursor: decodedCursor ? { id: decodedCursor.id } : undefined,
+    skip: decodedCursor ? 1 : undefined,
     orderBy: {
       avgRating: "desc",
     },
@@ -123,7 +132,17 @@ export const getProjectController = async (req: Request, res: Response) => {
       },
     },
   });
-  const formatedProjects = projects.map((project) => {
+  const hasNextPage = projects.length > limit;
+  const finalData = hasNextPage ? projects.slice(0, limit) : projects;
+  const nextCursor =
+    hasNextPage && projects.length > 0
+      ? Buffer.from(
+          JSON.stringify({
+            id: finalData[finalData.length - 1].id,
+          }),
+        ).toString("base64")
+      : null;
+  const formatedProjects = finalData.map((project) => {
     const { tags, user, ...rest } = project;
     const formatedTags = tags.map((t) => t.tag.name);
     return { ...rest, tags: formatedTags, author: user };
@@ -132,6 +151,10 @@ export const getProjectController = async (req: Request, res: Response) => {
   res.status(200).json(
     new ApiResponse(200, "Projects retreived successsfully", {
       projects: formatedProjects,
+      pagination: {
+        nextCursor,
+        hasNextPage,
+      },
     }),
   );
 };
