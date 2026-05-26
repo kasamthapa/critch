@@ -14,8 +14,11 @@ import type { ApiResponse } from "../types/apiResponse.types";
 
 export const getProjects = async (
   tag?: string,
+  cursor?: string,
 ): Promise<GetAllProjectResponse> => {
-  const response = await api.get("/projects", { params: tag ? { tag } : {} });
+  const response = await api.get("/projects", {
+    params: { tag, cursor },
+  });
   return response.data;
 };
 export const getOneProject = async (

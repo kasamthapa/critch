@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getProjects } from "../api/project.api";
-import type { ProjectSummary } from "../types/project.types";
+import { type Pagination, type ProjectSummary } from "../types/project.types";
 import { useAuth } from "../hooks/useAuth";
 
 export function Home() {
@@ -15,6 +15,9 @@ export function Home() {
   const [tags, setTags] = useState<Array<string>>([]);
   const [selectedTag, setSelectedTag] = useState("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const [pagination, setPaginaton] = useState<Pagination>();
+  const [cursor, setCursor] = useState<string | undefined>();
 
   const [flashMessage, setFlashMessage] = useState(
     location.state?.message || "",
@@ -41,10 +44,14 @@ export function Home() {
       setIsLoading(true);
 
       try {
-        const response = await getProjects(selectedTag);
+        const response = await getProjects(selectedTag, cursor);
+        if (cursor) {
+          setProjects((prev) => [...prev, ...response.data.projects]);
+        } else {
+          setProjects(response.data.projects);
+        }
 
-        setProjects(response.data.projects);
-
+        setPaginaton(response.data.pagination);
         if (!selectedTag) {
           const allTags = response.data.projects.flatMap((p) => p.tags);
 
@@ -62,7 +69,7 @@ export function Home() {
     };
 
     makeRequest();
-  }, [selectedTag]);
+  }, [selectedTag, cursor]);
 
   return (
     <div className="min-h-screen bg-zinc-100 p-6">
@@ -160,6 +167,7 @@ export function Home() {
                           onClick={() => {
                             setSelectedTag(tag);
                             setIsOpen(false);
+                            setCursor(undefined);
                           }}
                           className={`w-full px-4 py-3 text-left transition
                   ${
@@ -286,6 +294,16 @@ export function Home() {
             </div>
           ))}
         </div>
+        {pagination?.hasNextPage && (
+          <div className="flex justify-center items-center mt-4">
+            <button
+              onClick={() => setCursor(pagination?.nextCursor)}
+              className="cursor-pointer border-zinc-500 rounded-xl border px-4 py-3  transition hover:border-zinc-300"
+            >
+              Load More
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

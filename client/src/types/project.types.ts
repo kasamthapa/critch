@@ -174,6 +174,13 @@ export interface CreatedProjectResponse {
   avgRating: string;
   tags: string[];
 }
-export type GetAllProjectResponse = ApiResponse<{ projects: ProjectSummary[] }>;
+export interface Pagination {
+  nextCursor: string;
+  hasNextPage: boolean;
+}
+export type GetAllProjectResponse = ApiResponse<{
+  projects: ProjectSummary[];
+  pagination: Pagination;
+}>;
 export type GetOneProjectResponse = ApiResponse<ProjectDetail>;
 export type CreateProjectResponse = ApiResponse<CreatedProjectResponse>;
