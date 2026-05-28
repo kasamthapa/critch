@@ -13,6 +13,7 @@ function DashBoard() {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isDropOpen, setIsDropOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const location = useLocation();
@@ -48,19 +49,25 @@ function DashBoard() {
 
   useEffect(() => {
     if (flashMessage) {
-      const timer = setTimeout(() => {
-        setFlashMessage("");
-      }, 3000);
+      const timer = setTimeout(() => setFlashMessage(""), 3000);
       return () => clearTimeout(timer);
     }
   }, [flashMessage]);
 
+  const sectionLabel = () => {
+    if (section === DashboardContent.MY_PROJECT) return "my projects";
+    if (section === DashboardContent.REVIEWS_RECEIVED)
+      return "reviews / received";
+    if (section === DashboardContent.REVIEWS_GIVEN) return "reviews / given";
+    return "";
+  };
+
   return (
     <div className="min-h-screen bg-[#111110] text-zinc-300">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Flash */}
         {flashMessage && (
-          <div className="mb-8 flex items-start gap-3 border-l-2 border-emerald-500 bg-emerald-950/30 px-5 py-4 text-base text-emerald-400">
+          <div className="mb-6 flex items-start gap-3 border-l-2 border-emerald-500 bg-emerald-950/30 px-4 py-3 text-sm sm:text-base text-emerald-400">
             <span className="font-mono text-emerald-500 select-none mt-0.5">
               ✓
             </span>
@@ -77,10 +84,98 @@ function DashBoard() {
         )}
 
         {!isLoading && dashboardData && (
-          <div className="flex flex-col sm:flex-row gap-8 items-start">
-            {/* Sidebar */}
-            <aside className="w-full sm:w-64 shrink-0 border border-zinc-800 bg-zinc-900/50">
-              {/* User block */}
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
+            {/* Mobile section toggle */}
+            <div className="sm:hidden w-full">
+              <button
+                onClick={() => setIsSidebarOpen((prev) => !prev)}
+                className="w-full flex items-center justify-between border border-zinc-700 bg-zinc-900 px-4 py-3 font-mono text-sm text-zinc-300 min-h-[44px]"
+              >
+                <span>{sectionLabel()}</span>
+                <span
+                  className={`text-xs text-zinc-600 transition-transform duration-150 ${isSidebarOpen ? "rotate-180" : ""}`}
+                >
+                  ▾
+                </span>
+              </button>
+
+              {isSidebarOpen && (
+                <div className="border border-t-0 border-zinc-700 bg-zinc-900/80 overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setSearchParams({ section: DashboardContent.MY_PROJECT });
+                      setIsSidebarOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3.5 font-mono text-sm transition-colors min-h-[44px] relative ${
+                      section === DashboardContent.MY_PROJECT
+                        ? "text-zinc-100 bg-zinc-800"
+                        : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50"
+                    }`}
+                  >
+                    {section === DashboardContent.MY_PROJECT && (
+                      <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500" />
+                    )}
+                    my projects
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsDropOpen((prev) => !prev);
+                    }}
+                    className="w-full text-left px-4 py-3.5 font-mono text-sm text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50 transition-colors flex items-center justify-between min-h-[44px]"
+                  >
+                    reviews
+                    <span
+                      className={`text-xs text-zinc-600 transition-transform duration-150 ${isDropOpen ? "rotate-180" : ""}`}
+                    >
+                      ▾
+                    </span>
+                  </button>
+                  {isDropOpen && (
+                    <div className="border-t border-zinc-800">
+                      <button
+                        onClick={() => {
+                          setSearchParams({
+                            section: DashboardContent.REVIEWS_RECEIVED,
+                          });
+                          setIsSidebarOpen(false);
+                        }}
+                        className={`w-full text-left pl-8 pr-4 py-3 font-mono text-sm transition-colors min-h-[44px] relative ${
+                          section === DashboardContent.REVIEWS_RECEIVED
+                            ? "text-zinc-100 bg-zinc-800"
+                            : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50"
+                        }`}
+                      >
+                        {section === DashboardContent.REVIEWS_RECEIVED && (
+                          <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500" />
+                        )}
+                        received
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSearchParams({
+                            section: DashboardContent.REVIEWS_GIVEN,
+                          });
+                          setIsSidebarOpen(false);
+                        }}
+                        className={`w-full text-left pl-8 pr-4 py-3 font-mono text-sm transition-colors min-h-[44px] relative ${
+                          section === DashboardContent.REVIEWS_GIVEN
+                            ? "text-zinc-100 bg-zinc-800"
+                            : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50"
+                        }`}
+                      >
+                        {section === DashboardContent.REVIEWS_GIVEN && (
+                          <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500" />
+                        )}
+                        given
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Desktop sidebar */}
+            <aside className="hidden sm:block w-64 shrink-0 border border-zinc-800 bg-zinc-900/50">
               <div className="flex items-center gap-4 px-5 py-5 border-b border-zinc-800">
                 {user?.avatarUrl ? (
                   <img
@@ -103,13 +198,12 @@ function DashBoard() {
                 </div>
               </div>
 
-              {/* Nav */}
               <nav className="p-2.5 flex flex-col gap-1">
                 <button
                   onClick={() =>
                     setSearchParams({ section: DashboardContent.MY_PROJECT })
                   }
-                  className={`w-full text-left px-4 py-3 font-mono text-sm transition-colors relative ${
+                  className={`w-full text-left px-4 py-3 font-mono text-sm transition-colors relative min-h-[44px] ${
                     section === DashboardContent.MY_PROJECT
                       ? "text-zinc-100 bg-zinc-800"
                       : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50"
@@ -123,7 +217,7 @@ function DashBoard() {
 
                 <button
                   onClick={() => setIsDropOpen((prev) => !prev)}
-                  className={`w-full text-left px-4 py-3 font-mono text-sm transition-colors flex items-center justify-between ${
+                  className={`w-full text-left px-4 py-3 font-mono text-sm transition-colors flex items-center justify-between min-h-[44px] ${
                     isDropOpen
                       ? "text-zinc-300"
                       : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50"
@@ -145,7 +239,7 @@ function DashBoard() {
                           section: DashboardContent.REVIEWS_RECEIVED,
                         })
                       }
-                      className={`w-full text-left px-3 py-2.5 font-mono text-sm transition-colors relative ${
+                      className={`w-full text-left px-3 py-2.5 font-mono text-sm transition-colors relative min-h-[44px] ${
                         section === DashboardContent.REVIEWS_RECEIVED
                           ? "text-zinc-100 bg-zinc-800"
                           : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50"
@@ -156,14 +250,13 @@ function DashBoard() {
                       )}
                       received
                     </button>
-
                     <button
                       onClick={() =>
                         setSearchParams({
                           section: DashboardContent.REVIEWS_GIVEN,
                         })
                       }
-                      className={`w-full text-left px-3 py-2.5 font-mono text-sm transition-colors relative ${
+                      className={`w-full text-left px-3 py-2.5 font-mono text-sm transition-colors relative min-h-[44px] ${
                         section === DashboardContent.REVIEWS_GIVEN
                           ? "text-zinc-100 bg-zinc-800"
                           : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50"
@@ -180,15 +273,10 @@ function DashBoard() {
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 min-w-0">
-              {/* Section heading */}
-              <div className="mb-8 flex items-center gap-4">
-                <h2 className="font-mono text-sm text-zinc-500 uppercase tracking-widest">
-                  {section === DashboardContent.MY_PROJECT && "my projects"}
-                  {section === DashboardContent.REVIEWS_RECEIVED &&
-                    "reviews / received"}
-                  {section === DashboardContent.REVIEWS_GIVEN &&
-                    "reviews / given"}
+            <main className="flex-1 min-w-0 w-full">
+              <div className="mb-6 sm:mb-8 flex items-center gap-4">
+                <h2 className="font-mono text-xs sm:text-sm text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                  {sectionLabel()}
                 </h2>
                 <div className="h-px flex-1 bg-zinc-800" />
               </div>
@@ -209,7 +297,7 @@ function DashBoard() {
               )}
 
               {error && (
-                <div className="mt-6 flex items-start gap-3 border-l-2 border-red-500 bg-red-950/20 px-5 py-4 text-base text-red-400">
+                <div className="mt-6 flex items-start gap-3 border-l-2 border-red-500 bg-red-950/20 px-4 py-3 text-sm sm:text-base text-red-400">
                   <span className="font-mono text-red-500 select-none mt-0.5">
                     ✕
                   </span>

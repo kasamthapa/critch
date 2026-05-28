@@ -69,10 +69,10 @@ export function Home() {
 
   return (
     <div className="min-h-screen bg-[#111110] text-zinc-300">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8 py-12 sm:py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         {/* Flash */}
         {flashMessage && (
-          <div className="mb-8 flex items-start gap-3 border-l-2 border-emerald-500 bg-emerald-950/30 px-5 py-4 text-base text-emerald-400">
+          <div className="mb-6 sm:mb-8 flex items-start gap-3 border-l-2 border-emerald-500 bg-emerald-950/30 px-4 py-3 text-sm sm:text-base text-emerald-400">
             <span className="font-mono text-emerald-500 select-none mt-0.5">
               ✓
             </span>
@@ -82,23 +82,23 @@ export function Home() {
 
         {/* Error */}
         {error && (
-          <div className="mb-8 flex items-start gap-3 border-l-2 border-red-500 bg-red-950/20 px-5 py-4 text-base text-red-400">
+          <div className="mb-6 sm:mb-8 flex items-start gap-3 border-l-2 border-red-500 bg-red-950/20 px-4 py-3 text-sm sm:text-base text-red-400">
             <span className="font-mono text-red-500 select-none mt-0.5">✕</span>
             {error}
           </div>
         )}
 
         {/* Header */}
-        <header className="mb-12">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+        <header className="mb-8 sm:mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
             <div>
-              <p className="font-mono text-sm text-zinc-600 tracking-widest uppercase mb-4">
+              <p className="font-mono text-xs sm:text-sm text-zinc-600 tracking-widest uppercase mb-3 sm:mb-4">
                 critch / explore
               </p>
-              <h1 className="text-5xl sm:text-6xl font-bold leading-[1.0] tracking-tight text-zinc-50">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.0] tracking-tight text-zinc-50">
                 Projects
               </h1>
-              <p className="mt-4 text-base text-zinc-500 max-w-sm leading-relaxed">
+              <p className="mt-3 sm:mt-4 text-sm sm:text-base text-zinc-500 max-w-sm leading-relaxed">
                 Browse and review work from the developer community.
               </p>
             </div>
@@ -107,7 +107,7 @@ export function Home() {
               <div className="sm:pt-10">
                 <button
                   onClick={() => navigate("/projects/new")}
-                  className="group inline-flex items-center gap-3 border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-medium text-zinc-300 transition-all hover:border-zinc-500 hover:text-zinc-100 hover:bg-zinc-800"
+                  className="group inline-flex items-center gap-3 border border-zinc-700 bg-zinc-900 px-4 sm:px-5 py-3 text-sm font-medium text-zinc-300 transition-all hover:border-zinc-500 hover:text-zinc-100 hover:bg-zinc-800 min-h-[44px]"
                 >
                   <span className="font-mono text-zinc-500 group-hover:text-amber-400 transition-colors text-lg leading-none">
                     +
@@ -118,10 +118,10 @@ export function Home() {
             )}
           </div>
 
-          <div className="mt-10 flex items-center gap-4">
+          <div className="mt-8 sm:mt-10 flex items-center gap-4">
             <div className="h-px flex-1 bg-zinc-800" />
             {projects.length > 0 && (
-              <span className="font-mono text-sm text-zinc-600">
+              <span className="font-mono text-xs sm:text-sm text-zinc-600">
                 {projects.length} result{projects.length !== 1 ? "s" : ""}
               </span>
             )}
@@ -129,16 +129,16 @@ export function Home() {
         </header>
 
         {/* Filter bar */}
-        <div className="mb-10">
-          <div className="flex items-center gap-5 flex-wrap">
-            <span className="font-mono text-sm text-zinc-600 select-none">
+        <div className="mb-8 sm:mb-10">
+          <div className="flex items-center gap-4 sm:gap-5 flex-wrap">
+            <span className="font-mono text-xs sm:text-sm text-zinc-600 select-none">
               tag:
             </span>
 
             <div className="relative">
               <button
                 onClick={() => setIsOpen((prev) => !prev)}
-                className={`inline-flex items-center gap-3 border px-4 py-2.5 text-sm font-mono transition-all duration-150 ${
+                className={`inline-flex items-center gap-3 border px-3.5 py-2.5 text-sm font-mono transition-all min-h-[44px] ${
                   isOpen
                     ? "border-zinc-400 bg-zinc-800 text-zinc-100"
                     : "border-zinc-700 bg-transparent text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
@@ -146,9 +146,7 @@ export function Home() {
               >
                 <span>{selectedTag ? `#${selectedTag}` : "all"}</span>
                 <span
-                  className={`text-xs text-zinc-600 transition-transform duration-150 ${
-                    isOpen ? "rotate-180" : ""
-                  }`}
+                  className={`text-xs text-zinc-600 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
                 >
                   ▾
                 </span>
@@ -161,7 +159,7 @@ export function Home() {
                       setSelectedTag("");
                       setIsOpen(false);
                     }}
-                    className={`w-full px-4 py-3 text-left font-mono text-sm transition-colors border-b border-zinc-800 ${
+                    className={`w-full px-4 py-3 text-left font-mono text-sm transition-colors border-b border-zinc-800 min-h-[44px] ${
                       selectedTag === ""
                         ? "text-amber-400 bg-zinc-800/60"
                         : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
@@ -169,7 +167,6 @@ export function Home() {
                   >
                     all
                   </button>
-
                   <div className="max-h-60 overflow-y-auto">
                     {tags.map((tag) => (
                       <button
@@ -179,7 +176,7 @@ export function Home() {
                           setIsOpen(false);
                           setCursor(undefined);
                         }}
-                        className={`w-full px-4 py-3 text-left font-mono text-sm transition-colors ${
+                        className={`w-full px-4 py-3 text-left font-mono text-sm transition-colors min-h-[44px] ${
                           selectedTag === tag
                             ? "text-amber-400 bg-zinc-800/60"
                             : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
@@ -196,7 +193,7 @@ export function Home() {
             {selectedTag && (
               <button
                 onClick={() => setSelectedTag("")}
-                className="inline-flex items-center gap-2 border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-mono text-sm text-amber-400 hover:bg-amber-500/20 transition-colors"
+                className="inline-flex items-center gap-2 border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-mono text-xs sm:text-sm text-amber-400 hover:bg-amber-500/20 transition-colors min-h-[44px]"
               >
                 #{selectedTag}
                 <span className="text-amber-600 text-xs">✕</span>
@@ -207,7 +204,7 @@ export function Home() {
 
         {/* Loading */}
         {isLoading && (
-          <div className="flex items-center gap-3 py-20 text-base text-zinc-600">
+          <div className="flex items-center gap-3 py-16 sm:py-20 text-sm sm:text-base text-zinc-600">
             <span className="font-mono animate-pulse text-lg">···</span>
             <span>fetching projects</span>
           </div>
@@ -215,9 +212,11 @@ export function Home() {
 
         {/* Empty state */}
         {!isLoading && projects.length === 0 && (
-          <div className="border border-zinc-800 border-dashed px-8 py-20 text-center">
-            <p className="font-mono text-sm text-zinc-600 mb-2">0 results</p>
-            <p className="text-base text-zinc-500">
+          <div className="border border-zinc-800 border-dashed px-6 sm:px-8 py-16 sm:py-20 text-center">
+            <p className="font-mono text-xs sm:text-sm text-zinc-600 mb-2">
+              0 results
+            </p>
+            <p className="text-sm sm:text-base text-zinc-500">
               No projects match this filter.
             </p>
           </div>
@@ -229,11 +228,11 @@ export function Home() {
             <div
               key={p.id}
               onClick={() => handleProjectClick(p.id)}
-              className="group relative py-8 cursor-pointer transition-colors duration-150 hover:bg-zinc-900/40 -mx-4 px-4"
+              className="group relative py-6 sm:py-8 cursor-pointer transition-colors duration-150 hover:bg-zinc-900/40 -mx-3 sm:-mx-4 px-3 sm:px-4"
             >
-              <div className="flex flex-col sm:flex-row sm:items-start gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
                 {/* Thumbnail */}
-                <div className="sm:w-44 sm:shrink-0 h-28 sm:h-28 overflow-hidden bg-zinc-800 border border-zinc-700/50">
+                <div className="w-full sm:w-44 sm:shrink-0 h-44 sm:h-28 overflow-hidden bg-zinc-800 border border-zinc-700/50">
                   <img
                     src={p.screenshotURL}
                     alt="projectScreenshot"
@@ -243,69 +242,62 @@ export function Home() {
 
                 {/* Body */}
                 <div className="flex-1 min-w-0">
-                  {/* Title row */}
-                  <div className="flex items-baseline justify-between gap-4">
-                    <div className="flex items-baseline gap-4 min-w-0">
-                      <span className="font-mono text-sm text-zinc-700 select-none shrink-0">
+                  <div className="flex items-baseline justify-between gap-3 sm:gap-4">
+                    <div className="flex items-baseline gap-3 sm:gap-4 min-w-0">
+                      <span className="font-mono text-xs sm:text-sm text-zinc-700 select-none shrink-0">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <h2 className="text-xl sm:text-2xl font-semibold text-zinc-100 leading-tight truncate group-hover:text-white transition-colors">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-zinc-100 leading-tight truncate group-hover:text-white transition-colors">
                         {p.title}
                       </h2>
                     </div>
-
-                    <div className="shrink-0 font-mono text-sm text-zinc-500 flex items-center gap-1.5">
-                      <span className="text-amber-500 text-base">★</span>
+                    <div className="shrink-0 font-mono text-xs sm:text-sm text-zinc-500 flex items-center gap-1.5">
+                      <span className="text-amber-500">★</span>
                       <span>{p.avgRating || 0}</span>
                     </div>
                   </div>
 
-                  {/* Author */}
-                  <p className="mt-1.5 font-mono text-sm text-zinc-600">
+                  <p className="mt-1 sm:mt-1.5 font-mono text-xs sm:text-sm text-zinc-600">
                     @{p.author.username}
                   </p>
 
-                  {/* Description */}
-                  <p className="mt-3 text-base text-zinc-500 leading-relaxed line-clamp-2">
+                  <p className="mt-2 sm:mt-3 text-sm sm:text-base text-zinc-500 leading-relaxed line-clamp-2">
                     {p.description}
                   </p>
 
-                  {/* Tags + links */}
-                  <div className="mt-4 flex items-center justify-between gap-4 flex-wrap">
-                    <div className="flex flex-wrap gap-2">
+                  <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {p.tags.map((t) => (
                         <span
                           key={t}
-                          className="font-mono text-xs text-zinc-500 border border-zinc-800 px-2.5 py-1 bg-zinc-900/60"
+                          className="font-mono text-[11px] sm:text-xs text-zinc-500 border border-zinc-800 px-2 sm:px-2.5 py-1 bg-zinc-900/60"
                         >
                           {t}
                         </span>
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-5 shrink-0">
-                      <span className="font-mono text-sm text-zinc-600">
+                    <div className="flex items-center gap-4 sm:gap-5 shrink-0">
+                      <span className="font-mono text-xs sm:text-sm text-zinc-600">
                         {p._count.reviews} review
                         {p._count.reviews !== 1 ? "s" : ""}
                       </span>
-
                       {p.liveURL && (
                         <a
                           href={p.liveURL}
                           target="_blank"
                           onClick={(e) => e.stopPropagation()}
-                          className="font-mono text-sm text-zinc-500 underline underline-offset-4 decoration-zinc-700 hover:text-amber-400 hover:decoration-amber-400/50 transition-colors"
+                          className="font-mono text-xs sm:text-sm text-zinc-500 underline underline-offset-4 decoration-zinc-700 hover:text-amber-400 hover:decoration-amber-400/50 transition-colors"
                         >
                           live ↗
                         </a>
                       )}
-
                       {p.githubURL && (
                         <a
                           href={p.githubURL}
                           target="_blank"
                           onClick={(e) => e.stopPropagation()}
-                          className="font-mono text-sm text-zinc-500 underline underline-offset-4 decoration-zinc-700 hover:text-amber-400 hover:decoration-amber-400/50 transition-colors"
+                          className="font-mono text-xs sm:text-sm text-zinc-500 underline underline-offset-4 decoration-zinc-700 hover:text-amber-400 hover:decoration-amber-400/50 transition-colors"
                         >
                           src ↗
                         </a>
@@ -315,7 +307,6 @@ export function Home() {
                 </div>
               </div>
 
-              {/* Left accent bar on hover */}
               <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500 scale-y-0 group-hover:scale-y-100 origin-top transition-transform duration-200" />
             </div>
           ))}
@@ -323,14 +314,14 @@ export function Home() {
 
         {/* Load more */}
         {pagination?.hasNextPage && (
-          <div className="mt-10 pt-8 border-t border-zinc-800 flex justify-between items-center">
-            <span className="font-mono text-sm text-zinc-600">
+          <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <span className="font-mono text-xs sm:text-sm text-zinc-600">
               showing {projects.length} project
               {projects.length !== 1 ? "s" : ""}
             </span>
             <button
               onClick={() => setCursor(pagination?.nextCursor)}
-              className="group inline-flex items-center gap-3 border border-zinc-700 px-5 py-3 text-sm font-mono text-zinc-400 transition-all hover:border-zinc-500 hover:text-zinc-200 hover:bg-zinc-900"
+              className="group inline-flex items-center gap-3 border border-zinc-700 px-4 sm:px-5 py-3 text-sm font-mono text-zinc-400 transition-all hover:border-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 min-h-[44px]"
             >
               load more
               <span className="text-zinc-600 group-hover:text-zinc-400 transition-colors">
