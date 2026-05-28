@@ -9,25 +9,28 @@ import ProjectForm from "./pages/ProjectForm";
 import ProjectEditPage from "./pages/ProjectEditPage";
 import UserProfile from "./pages/UserProfile";
 import DashBoard from "./pages/DashBoard";
+import Layout from "./layout";
 
 function App() {
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route element={<ProtectedRoutes />}>
-            <Route path="/dashboard" element={<DashBoard />} />
-            <Route path="/projects/new" element={<ProjectForm />} />
-            <Route
-              path="/projects/edit/:projectId"
-              element={<ProjectEditPage />}
-            />
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route element={<ProtectedRoutes />}>
+              <Route path="/dashboard" element={<DashBoard />} />
+              <Route path="/projects/new" element={<ProjectForm />} />
+              <Route
+                path="/projects/edit/:projectId"
+                element={<ProjectEditPage />}
+              />
+            </Route>
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/projects/:id" element={<Project />} />
+            <Route path="/users/:username" element={<UserProfile />} />
           </Route>
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/projects/:id" element={<Project />} />
-          <Route path="/users/:username" element={<UserProfile />} />
         </Routes>
       </BrowserRouter>
     </>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { getProjects } from "../api/project.api";
 import { type Pagination, type ProjectSummary } from "../types/project.types";
 import { useAuth } from "../hooks/useAuth";
@@ -24,6 +24,8 @@ export function Home() {
   );
 
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const searchValue = searchParams.get("search") || "";
 
   function handleProjectClick(id: number) {
     navigate(`/projects/${id}`);
@@ -33,6 +35,7 @@ export function Home() {
     if (flashMessage) {
       const timer = setTimeout(() => {
         setFlashMessage("");
+        window.history.replaceState({}, document.title);
       }, 3000);
 
       return () => clearTimeout(timer);
@@ -44,7 +47,7 @@ export function Home() {
       setIsLoading(true);
 
       try {
-        const response = await getProjects(selectedTag, cursor);
+        const response = await getProjects(selectedTag, cursor, searchValue);
         if (cursor) {
           setProjects((prev) => [...prev, ...response.data.projects]);
         } else {
@@ -69,7 +72,7 @@ export function Home() {
     };
 
     makeRequest();
-  }, [selectedTag, cursor]);
+  }, [selectedTag, cursor, searchValue]);
 
   return (
     <div className="min-h-screen bg-zinc-100 p-6">

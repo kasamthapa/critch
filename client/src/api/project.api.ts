@@ -15,9 +15,10 @@ import type { ApiResponse } from "../types/apiResponse.types";
 export const getProjects = async (
   tag?: string,
   cursor?: string,
+  searchValue?: string,
 ): Promise<GetAllProjectResponse> => {
   const response = await api.get("/projects", {
-    params: { tag, cursor },
+    params: { tag, cursor, search: searchValue },
   });
   return response.data;
 };

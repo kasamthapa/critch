@@ -12,7 +12,6 @@ function DashBoard() {
   const [dashboardData, setDashboardData] = useState<dashboardPage>();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const [isDropOpen, setIsDropOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
