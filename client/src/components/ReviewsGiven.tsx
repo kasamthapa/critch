@@ -2,86 +2,93 @@ import type { ReviewDetails } from "../types/dashboard.types";
 
 function ReviewsGiven({ reviews }: { reviews: ReviewDetails[] }) {
   return (
-    <div className="bg-zinc-100 min-h-screen p-6 rounded-2xl">
-      {/* Heading */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-zinc-800">Reviews Given</h1>
-
-        <p className="text-zinc-500 mt-1">
-          Reviews and feedback you have submitted
-        </p>
-      </div>
-
+    <div>
       {/* Empty State */}
       {reviews.length === 0 && (
-        <div className="bg-white border border-zinc-200 rounded-2xl p-10 text-center text-zinc-500 shadow-sm">
-          No reviews given yet.
+        <div className="border border-zinc-800 border-dashed px-8 py-20 text-center">
+          <p className="font-mono text-sm text-zinc-600 mb-2">0 reviews</p>
+          <p className="text-base text-zinc-500">
+            You haven't submitted any reviews yet.
+          </p>
         </div>
       )}
 
-      {/* Reviews */}
-      <div className="space-y-5">
-        {reviews.map((r) => (
+      {/* Review list */}
+      <div className="flex flex-col divide-y divide-zinc-800/70">
+        {reviews.map((r, i) => (
           <div
             key={r.id}
-            className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition"
+            className="group relative py-8 -mx-4 px-4 transition-colors hover:bg-zinc-900/40"
           >
-            {/* Top Section */}
+            {/* Amber left bar on hover */}
+            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500 scale-y-0 group-hover:scale-y-100 origin-top transition-transform duration-200" />
+
+            {/* Header row */}
             <div className="flex items-start justify-between gap-4 mb-6">
-              <div>
-                <h2 className="text-2xl font-semibold text-zinc-800">
-                  {r.project.title}
-                </h2>
-
-                <p className="text-sm text-zinc-500 mt-1">
-                  {new Date(r.created_at).toLocaleDateString()}
-                </p>
+              <div className="flex items-baseline gap-4 min-w-0">
+                <span className="font-mono text-sm text-zinc-700 shrink-0 select-none">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div className="min-w-0">
+                  <h2 className="text-xl font-semibold text-zinc-100 truncate">
+                    {r.project.title}
+                  </h2>
+                  <p className="font-mono text-sm text-zinc-600 mt-1">
+                    {new Date(r.created_at).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
               </div>
 
-              <div className="bg-black text-white px-4 py-2 rounded-xl text-sm font-medium">
-                Review
-              </div>
+              <span className="shrink-0 font-mono text-xs text-zinc-600 border border-zinc-800 px-3 py-1.5 bg-zinc-900/60 uppercase tracking-wider">
+                review
+              </span>
             </div>
 
-            {/* Ratings */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-200">
-                <p className="text-sm text-zinc-500">Idea</p>
-                <p className="text-2xl font-bold text-zinc-800">
-                  {r.ideaScore}/5
-                </p>
-              </div>
-
-              <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-200">
-                <p className="text-sm text-zinc-500">Code Quality</p>
-                <p className="text-2xl font-bold text-zinc-800">
-                  {r.codeQuality}/5
-                </p>
-              </div>
-
-              <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-200">
-                <p className="text-sm text-zinc-500">UI Design</p>
-                <p className="text-2xl font-bold text-zinc-800">
-                  {r.uiDesign}/5
-                </p>
-              </div>
-
-              <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-200">
-                <p className="text-sm text-zinc-500">Documentation</p>
-                <p className="text-2xl font-bold text-zinc-800">
-                  {r.documentation}/5
-                </p>
-              </div>
+            {/* Score grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 ml-8">
+              {[
+                { label: "Idea", value: r.ideaScore },
+                { label: "Code", value: r.codeQuality },
+                { label: "UI Design", value: r.uiDesign },
+                { label: "Docs", value: r.documentation },
+              ].map(({ label, value }) => (
+                <div
+                  key={label}
+                  className="border border-zinc-800 bg-zinc-900/60 px-4 py-3"
+                >
+                  <p className="font-mono text-xs text-zinc-600 uppercase tracking-wider mb-2">
+                    {label}
+                  </p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold text-zinc-100">
+                      {value}
+                    </span>
+                    <span className="font-mono text-sm text-zinc-600">/5</span>
+                  </div>
+                  {/* Score bar */}
+                  <div className="mt-2.5 h-0.5 bg-zinc-800">
+                    <div
+                      className="h-0.5 bg-amber-500 transition-all"
+                      style={{ width: `${(Number(value) / 5) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* Feedback */}
+            {/* Comment */}
             {r.comment && (
-              <div className="mt-6 border-t border-zinc-200 pt-4">
-                <p className="text-sm font-medium text-zinc-500 mb-2">
-                  Feedback
+              <div className="mt-6 ml-8 border-l border-zinc-700 pl-5">
+                <p className="font-mono text-xs text-zinc-600 uppercase tracking-wider mb-2">
+                  feedback
                 </p>
-
-                <p className="text-zinc-700 leading-relaxed">{r.comment}</p>
+                <p className="text-base text-zinc-400 leading-relaxed">
+                  {r.comment}
+                </p>
               </div>
             )}
           </div>

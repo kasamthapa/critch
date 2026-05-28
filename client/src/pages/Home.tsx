@@ -37,7 +37,6 @@ export function Home() {
         setFlashMessage("");
         window.history.replaceState({}, document.title);
       }, 3000);
-
       return () => clearTimeout(timer);
     }
   }, [flashMessage]);
@@ -45,7 +44,6 @@ export function Home() {
   useEffect(() => {
     const makeRequest = async () => {
       setIsLoading(true);
-
       try {
         const response = await getProjects(selectedTag, cursor, searchValue);
         if (cursor) {
@@ -53,16 +51,12 @@ export function Home() {
         } else {
           setProjects(response.data.projects);
         }
-
         setPaginaton(response.data.pagination);
         if (!selectedTag) {
           const allTags = response.data.projects.flatMap((p) => p.tags);
-
           const uniqueTags = [...new Set(allTags)];
-
           setTags(uniqueTags);
         }
-
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         setError(err.response?.data.message);
@@ -70,240 +64,278 @@ export function Home() {
         setIsLoading(false);
       }
     };
-
     makeRequest();
   }, [selectedTag, cursor, searchValue]);
 
   return (
-    <div className="min-h-screen bg-zinc-100 p-6">
-      {/* Container */}
-      <div className="max-w-6xl mx-auto">
-        {/* Flash Message */}
+    <div className="min-h-screen bg-[#111110] text-zinc-300">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8 py-12 sm:py-16">
+        {/* Flash */}
         {flashMessage && (
-          <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+          <div className="mb-8 flex items-start gap-3 border-l-2 border-emerald-500 bg-emerald-950/30 px-5 py-4 text-base text-emerald-400">
+            <span className="font-mono text-emerald-500 select-none mt-0.5">
+              ✓
+            </span>
             {flashMessage}
-          </div>
-        )}
-
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-zinc-800">
-              Explore Projects
-            </h1>
-
-            <p className="text-zinc-500 mt-1">
-              Discover and review developer projects
-            </p>
-          </div>
-
-          {user && (
-            <button
-              onClick={() => navigate("/projects/new")}
-              className="px-5 py-3 rounded-xl bg-black text-white hover:bg-zinc-800 transition"
-            >
-              Create Project
-            </button>
-          )}
-        </div>
-
-        {/* Filter */}
-        <div className="relative mb-8">
-          <div className="bg-white border border-zinc-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-zinc-500 font-medium">
-                Browse Projects
-              </p>
-
-              <div className="relative w-full md:w-72">
-                {/* Trigger */}
-                <button
-                  onClick={() => setIsOpen((prev) => !prev)}
-                  className={`w-full flex items-center justify-between rounded-xl border px-4 py-3 transition text-left
-          ${
-            isOpen
-              ? "border-black bg-white shadow-sm"
-              : "border-zinc-200 bg-zinc-50 hover:bg-zinc-100"
-          }`}
-                >
-                  <span
-                    className={`font-medium ${
-                      selectedTag ? "text-zinc-800" : "text-zinc-500"
-                    }`}
-                  >
-                    {selectedTag || "All projects"}
-                  </span>
-
-                  <span
-                    className={`text-sm transition-transform duration-200 ${
-                      isOpen ? "rotate-180" : ""
-                    }`}
-                  >
-                    ▼
-                  </span>
-                </button>
-
-                {/* Dropdown */}
-                {isOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-full overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100">
-                    {/* All Projects */}
-                    <button
-                      onClick={() => {
-                        setSelectedTag("");
-                        setIsOpen(false);
-                      }}
-                      className={`w-full px-4 py-3 text-left transition border-b border-zinc-100
-              ${
-                selectedTag === ""
-                  ? "bg-black text-white"
-                  : "hover:bg-zinc-100 text-zinc-700"
-              }`}
-                    >
-                      All projects
-                    </button>
-
-                    {/* Tags */}
-                    <div className="max-h-60 overflow-y-auto">
-                      {tags.map((tag) => (
-                        <button
-                          key={tag}
-                          onClick={() => {
-                            setSelectedTag(tag);
-                            setIsOpen(false);
-                            setCursor(undefined);
-                          }}
-                          className={`w-full px-4 py-3 text-left transition
-                  ${
-                    selectedTag === tag
-                      ? "bg-black text-white"
-                      : "hover:bg-zinc-100 text-zinc-700"
-                  }`}
-                        >
-                          #{tag}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Loading */}
-        {isLoading && (
-          <div className="text-center py-20 text-zinc-500">
-            Loading projects...
           </div>
         )}
 
         {/* Error */}
         {error && (
-          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-600">
+          <div className="mb-8 flex items-start gap-3 border-l-2 border-red-500 bg-red-950/20 px-5 py-4 text-base text-red-400">
+            <span className="font-mono text-red-500 select-none mt-0.5">✕</span>
             {error}
           </div>
         )}
 
-        {/* Empty State */}
-        {!isLoading && projects.length === 0 && (
-          <div className="bg-white border border-zinc-200 rounded-2xl p-10 text-center text-zinc-500 shadow-sm">
-            No projects found.
+        {/* Header */}
+        <header className="mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+            <div>
+              <p className="font-mono text-sm text-zinc-600 tracking-widest uppercase mb-4">
+                critch / explore
+              </p>
+              <h1 className="text-5xl sm:text-6xl font-bold leading-[1.0] tracking-tight text-zinc-50">
+                Projects
+              </h1>
+              <p className="mt-4 text-base text-zinc-500 max-w-sm leading-relaxed">
+                Browse and review work from the developer community.
+              </p>
+            </div>
+
+            {user && (
+              <div className="sm:pt-10">
+                <button
+                  onClick={() => navigate("/projects/new")}
+                  className="group inline-flex items-center gap-3 border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-medium text-zinc-300 transition-all hover:border-zinc-500 hover:text-zinc-100 hover:bg-zinc-800"
+                >
+                  <span className="font-mono text-zinc-500 group-hover:text-amber-400 transition-colors text-lg leading-none">
+                    +
+                  </span>
+                  New project
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-10 flex items-center gap-4">
+            <div className="h-px flex-1 bg-zinc-800" />
+            {projects.length > 0 && (
+              <span className="font-mono text-sm text-zinc-600">
+                {projects.length} result{projects.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
+        </header>
+
+        {/* Filter bar */}
+        <div className="mb-10">
+          <div className="flex items-center gap-5 flex-wrap">
+            <span className="font-mono text-sm text-zinc-600 select-none">
+              tag:
+            </span>
+
+            <div className="relative">
+              <button
+                onClick={() => setIsOpen((prev) => !prev)}
+                className={`inline-flex items-center gap-3 border px-4 py-2.5 text-sm font-mono transition-all duration-150 ${
+                  isOpen
+                    ? "border-zinc-400 bg-zinc-800 text-zinc-100"
+                    : "border-zinc-700 bg-transparent text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+                }`}
+              >
+                <span>{selectedTag ? `#${selectedTag}` : "all"}</span>
+                <span
+                  className={`text-xs text-zinc-600 transition-transform duration-150 ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                >
+                  ▾
+                </span>
+              </button>
+
+              {isOpen && (
+                <div className="absolute top-full left-0 mt-1 w-52 border border-zinc-700 bg-[#161614] shadow-2xl shadow-black/70 z-50 overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setSelectedTag("");
+                      setIsOpen(false);
+                    }}
+                    className={`w-full px-4 py-3 text-left font-mono text-sm transition-colors border-b border-zinc-800 ${
+                      selectedTag === ""
+                        ? "text-amber-400 bg-zinc-800/60"
+                        : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
+                    }`}
+                  >
+                    all
+                  </button>
+
+                  <div className="max-h-60 overflow-y-auto">
+                    {tags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => {
+                          setSelectedTag(tag);
+                          setIsOpen(false);
+                          setCursor(undefined);
+                        }}
+                        className={`w-full px-4 py-3 text-left font-mono text-sm transition-colors ${
+                          selectedTag === tag
+                            ? "text-amber-400 bg-zinc-800/60"
+                            : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
+                        }`}
+                      >
+                        #{tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {selectedTag && (
+              <button
+                onClick={() => setSelectedTag("")}
+                className="inline-flex items-center gap-2 border border-amber-500/30 bg-amber-500/10 px-3 py-2 font-mono text-sm text-amber-400 hover:bg-amber-500/20 transition-colors"
+              >
+                #{selectedTag}
+                <span className="text-amber-600 text-xs">✕</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex items-center gap-3 py-20 text-base text-zinc-600">
+            <span className="font-mono animate-pulse text-lg">···</span>
+            <span>fetching projects</span>
           </div>
         )}
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {projects.map((p) => (
+        {/* Empty state */}
+        {!isLoading && projects.length === 0 && (
+          <div className="border border-zinc-800 border-dashed px-8 py-20 text-center">
+            <p className="font-mono text-sm text-zinc-600 mb-2">0 results</p>
+            <p className="text-base text-zinc-500">
+              No projects match this filter.
+            </p>
+          </div>
+        )}
+
+        {/* Project list */}
+        <div className="flex flex-col divide-y divide-zinc-800/70">
+          {projects.map((p, i) => (
             <div
               key={p.id}
               onClick={() => handleProjectClick(p.id)}
-              className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer group"
+              className="group relative py-8 cursor-pointer transition-colors duration-150 hover:bg-zinc-900/40 -mx-4 px-4"
             >
-              {/* Image */}
-              <div className="h-52 overflow-hidden bg-zinc-200">
-                <img
-                  src={p.screenshotURL}
-                  alt="projectScreenshot"
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                />
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                {/* Top */}
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-2xl font-semibold text-zinc-800">
-                      {p.title}
-                    </h2>
-
-                    <p className="text-sm text-zinc-500 mt-1">
-                      by {p.author.username}
-                    </p>
-                  </div>
-
-                  <div className="bg-zinc-100 border border-zinc-200 rounded-xl px-3 py-2 text-sm font-medium text-zinc-700">
-                    ⭐ {p.avgRating || 0}
-                  </div>
+              <div className="flex flex-col sm:flex-row sm:items-start gap-6">
+                {/* Thumbnail */}
+                <div className="sm:w-44 sm:shrink-0 h-28 sm:h-28 overflow-hidden bg-zinc-800 border border-zinc-700/50">
+                  <img
+                    src={p.screenshotURL}
+                    alt="projectScreenshot"
+                    className="w-full h-full object-cover opacity-70 transition-all duration-500 group-hover:opacity-100 group-hover:scale-[1.05]"
+                  />
                 </div>
 
-                {/* Description */}
-                <p className="text-zinc-600 mt-4 line-clamp-3">
-                  {p.description}
-                </p>
+                {/* Body */}
+                <div className="flex-1 min-w-0">
+                  {/* Title row */}
+                  <div className="flex items-baseline justify-between gap-4">
+                    <div className="flex items-baseline gap-4 min-w-0">
+                      <span className="font-mono text-sm text-zinc-700 select-none shrink-0">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <h2 className="text-xl sm:text-2xl font-semibold text-zinc-100 leading-tight truncate group-hover:text-white transition-colors">
+                        {p.title}
+                      </h2>
+                    </div>
 
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mt-5">
-                  {p.tags.map((t) => (
-                    <span
-                      key={t}
-                      className="px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-sm text-zinc-700"
-                    >
-                      #{t}
-                    </span>
-                  ))}
-                </div>
+                    <div className="shrink-0 font-mono text-sm text-zinc-500 flex items-center gap-1.5">
+                      <span className="text-amber-500 text-base">★</span>
+                      <span>{p.avgRating || 0}</span>
+                    </div>
+                  </div>
 
-                {/* Bottom */}
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-zinc-200">
-                  <p className="text-sm text-zinc-500">
-                    {p._count.reviews} Reviews
+                  {/* Author */}
+                  <p className="mt-1.5 font-mono text-sm text-zinc-600">
+                    @{p.author.username}
                   </p>
 
-                  <div className="flex gap-4">
-                    {p.liveURL && (
-                      <a
-                        href={p.liveURL}
-                        target="_blank"
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-sm font-medium text-zinc-700 hover:text-black"
-                      >
-                        Live →
-                      </a>
-                    )}
+                  {/* Description */}
+                  <p className="mt-3 text-base text-zinc-500 leading-relaxed line-clamp-2">
+                    {p.description}
+                  </p>
 
-                    {p.githubURL && (
-                      <a
-                        href={p.githubURL}
-                        target="_blank"
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-sm font-medium text-zinc-700 hover:text-black"
-                      >
-                        Code →
-                      </a>
-                    )}
+                  {/* Tags + links */}
+                  <div className="mt-4 flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex flex-wrap gap-2">
+                      {p.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="font-mono text-xs text-zinc-500 border border-zinc-800 px-2.5 py-1 bg-zinc-900/60"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-5 shrink-0">
+                      <span className="font-mono text-sm text-zinc-600">
+                        {p._count.reviews} review
+                        {p._count.reviews !== 1 ? "s" : ""}
+                      </span>
+
+                      {p.liveURL && (
+                        <a
+                          href={p.liveURL}
+                          target="_blank"
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-mono text-sm text-zinc-500 underline underline-offset-4 decoration-zinc-700 hover:text-amber-400 hover:decoration-amber-400/50 transition-colors"
+                        >
+                          live ↗
+                        </a>
+                      )}
+
+                      {p.githubURL && (
+                        <a
+                          href={p.githubURL}
+                          target="_blank"
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-mono text-sm text-zinc-500 underline underline-offset-4 decoration-zinc-700 hover:text-amber-400 hover:decoration-amber-400/50 transition-colors"
+                        >
+                          src ↗
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
+
+              {/* Left accent bar on hover */}
+              <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500 scale-y-0 group-hover:scale-y-100 origin-top transition-transform duration-200" />
             </div>
           ))}
         </div>
+
+        {/* Load more */}
         {pagination?.hasNextPage && (
-          <div className="flex justify-center items-center mt-4">
+          <div className="mt-10 pt-8 border-t border-zinc-800 flex justify-between items-center">
+            <span className="font-mono text-sm text-zinc-600">
+              showing {projects.length} project
+              {projects.length !== 1 ? "s" : ""}
+            </span>
             <button
               onClick={() => setCursor(pagination?.nextCursor)}
-              className="cursor-pointer border-zinc-500 rounded-xl border px-4 py-3  transition hover:border-zinc-300"
+              className="group inline-flex items-center gap-3 border border-zinc-700 px-5 py-3 text-sm font-mono text-zinc-400 transition-all hover:border-zinc-500 hover:text-zinc-200 hover:bg-zinc-900"
             >
-              Load More
+              load more
+              <span className="text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                ↓
+              </span>
             </button>
           </div>
         )}
