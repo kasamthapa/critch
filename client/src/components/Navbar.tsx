@@ -103,7 +103,7 @@ function Navbar() {
             ) : (
               <div className="flex items-center gap-2 sm:gap-3">
                 <Link
-                  to="/profile"
+                  to={`/users/${user.username}`}
                   className="flex items-center gap-2 sm:gap-2.5 border border-zinc-700 bg-zinc-900 hover:border-zinc-500 hover:bg-zinc-800 transition-all px-2.5 py-2 min-h-[44px]"
                 >
                   {user?.avatarUrl ? (
