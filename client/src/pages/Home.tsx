@@ -167,7 +167,7 @@ export function Home() {
                   >
                     all
                   </button>
-                  <div className="max-h-60 overflow-y-auto">
+                  <div className="max-h-60 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     {tags.map((tag) => (
                       <button
                         key={tag}
