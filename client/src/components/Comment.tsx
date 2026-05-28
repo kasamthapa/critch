@@ -1,10 +1,7 @@
 import { useState } from "react";
 import type { CommentType, CommentAuthor } from "../types/comment.types";
-
 import { createComment } from "../api/project.api";
-
 import { SlArrowDown } from "react-icons/sl";
-
 import { useAuth } from "../hooks/useAuth";
 
 function Comment({
@@ -20,55 +17,30 @@ function Comment({
   author: CommentAuthor;
   content: string;
   projectId: number;
-
   replies?: CommentType[];
   isReply: boolean;
-
   setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const initialValue = {
-    projectId: null,
-    content: "",
-    parentId: null,
-  };
-
+  const initialValue = { projectId: null, content: "", parentId: null };
   const [isFormOpen, setIsFormOpen] = useState(false);
-
   const [formValue, setFormValue] = useState(initialValue);
-
   const [error, setError] = useState("");
-
   const [seeReplies, setSeeReplies] = useState<boolean>(false);
-
   const { user } = useAuth();
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-
-    setFormValue((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormValue((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    const payload = {
-      ...formValue,
-      projectId,
-      parentId: cId,
-    };
-
+    const payload = { ...formValue, projectId, parentId: cId };
     try {
       await createComment(payload);
-
       setRefreshKey((prev) => prev + 1);
-
       setFormValue(initialValue);
-
       setIsFormOpen(false);
-
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.response?.data?.message || "Something went wrong");
@@ -76,82 +48,79 @@ function Comment({
   }
 
   return (
-    <div className={`${isReply ? "ml-10 mt-4" : "mt-4"}`}>
-      {/* Comment Card */}
-      <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-5">
-        {/* User */}
+    <div className={`${isReply ? "ml-4 sm:ml-8 mt-3" : "mt-3"}`}>
+      {/* Comment card */}
+      <div className="border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5">
+        {/* Author */}
         <div className="flex items-center gap-3">
           <img
             src={author.avatarURL}
             alt="userProfile"
-            className="w-10 h-10 rounded-full object-cover border border-zinc-200"
+            className="w-8 h-8 sm:w-9 sm:h-9 object-cover border border-zinc-700 shrink-0"
           />
-
           <div>
-            <p className="font-semibold text-zinc-800">{author.username}</p>
-
-            <p className="text-sm text-zinc-500">Comment</p>
+            <p className="font-mono text-sm text-zinc-200">
+              @{author.username}
+            </p>
+            <p className="font-mono text-xs text-zinc-600">comment</p>
           </div>
         </div>
 
         {/* Content */}
-        <p className="text-zinc-700 leading-relaxed mt-4">{content}</p>
+        <p className="text-sm sm:text-base text-zinc-400 leading-relaxed mt-3 sm:mt-4">
+          {content}
+        </p>
 
         {/* Actions */}
-        <div className="flex items-center gap-4 mt-5">
+        <div className="flex items-center gap-4 sm:gap-5 mt-4">
           {!isFormOpen && user && (
             <button
               onClick={() => setIsFormOpen(true)}
-              className="text-sm font-medium text-zinc-600 hover:text-black transition"
+              className="font-mono text-xs sm:text-sm text-zinc-600 hover:text-zinc-300 transition-colors min-h-[36px] flex items-center"
             >
-              Reply
+              reply
             </button>
           )}
 
           {!isFormOpen && isReply === false && (replies?.length ?? 0) > 0 && (
             <button
               onClick={() => setSeeReplies((prev) => !prev)}
-              className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-black transition"
+              className="inline-flex items-center gap-2 font-mono text-xs sm:text-sm text-zinc-600 hover:text-zinc-300 transition-colors min-h-[36px]"
             >
               <span>
-                {seeReplies
-                  ? "Hide Replies"
-                  : `See Replies (${replies?.length})`}
+                {seeReplies ? "hide replies" : `replies (${replies?.length})`}
               </span>
-
               <SlArrowDown
-                className={`transition ${seeReplies ? "rotate-180" : ""}`}
+                className={`text-xs transition-transform duration-150 ${seeReplies ? "rotate-180" : ""}`}
               />
             </button>
           )}
         </div>
 
-        {/* Reply Form */}
+        {/* Reply form */}
         {isFormOpen && (
-          <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3">
+          <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
             <input
               type="text"
               name="content"
               placeholder="Write a reply..."
               onChange={handleChange}
               value={formValue.content}
-              className="w-full border border-zinc-200 rounded-xl px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-black"
+              className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
             />
-
             <div className="flex gap-3">
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl bg-black text-white hover:bg-zinc-800 transition"
+                className="px-4 py-2.5 border border-zinc-600 bg-zinc-800 font-mono text-sm text-zinc-100 hover:border-zinc-400 hover:bg-zinc-700 transition-all min-h-[44px]"
               >
-                Reply
+                reply
               </button>
-
               <button
                 type="button"
                 onClick={() => setIsFormOpen(false)}
-                className="px-4 py-2 rounded-xl border border-zinc-200 hover:bg-zinc-100 transition"
+                className="px-4 py-2.5 border border-zinc-700 font-mono text-sm text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-all min-h-[44px]"
               >
-                Cancel
+                cancel
               </button>
             </div>
           </form>
@@ -160,7 +129,7 @@ function Comment({
 
       {/* Replies */}
       {seeReplies && (
-        <div className="mt-4 space-y-4">
+        <div className="mt-3 flex flex-col gap-3">
           {replies?.map((r) => (
             <Comment
               setRefreshKey={setRefreshKey}
@@ -178,7 +147,8 @@ function Comment({
 
       {/* Error */}
       {error && (
-        <div className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="mt-3 flex items-start gap-3 border-l-2 border-red-500 bg-red-950/20 px-4 py-3 text-sm text-red-400">
+          <span className="font-mono text-red-500 select-none">✕</span>
           {error}
         </div>
       )}
