@@ -85,14 +85,16 @@ export const createProjectController = async (
 
 export const getProjectController = async (req: Request, res: Response) => {
   const cursor = req.query.cursor as string | undefined;
+  const searchQuery = req.query.search as string | undefined;
   const limit = 10;
   const decodedCursor = cursor
     ? JSON.parse(Buffer.from(cursor, "base64").toString("utf-8"))
     : null;
 
-  let whereClause = {};
+  let whereTagClause = {};
+  let whereSearchClause = {};
   if (req.query.tag) {
-    whereClause = {
+    whereTagClause = {
       tags: {
         some: {
           tag: {
@@ -102,8 +104,26 @@ export const getProjectController = async (req: Request, res: Response) => {
       },
     };
   }
+  if (searchQuery && searchQuery.trim().length > 0) {
+    whereSearchClause = {
+      OR: [
+        {
+          title: {
+            contains: searchQuery,
+            mode: "insensitive",
+          },
+        },
+        {
+          description: {
+            contains: searchQuery,
+            mode: "insensitive",
+          },
+        },
+      ],
+    };
+  }
   const projects = await prisma.project.findMany({
-    where: whereClause,
+    where: { ...whereTagClause, ...whereSearchClause },
     take: limit + 1,
     cursor: decodedCursor ? { id: decodedCursor.id } : undefined,
     skip: decodedCursor ? 1 : undefined,
