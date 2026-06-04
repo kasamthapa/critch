@@ -51,12 +51,19 @@ export const userSignInController = async (req: Request, res: Response) => {
   const refreshToken = generateRefreshToken(user.id.toString());
   const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
-  await prisma.refreshToken.create({
-    data: {
-      user_id: user.id,
-      token: hashedRefreshToken,
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60),
-    },
+  await prisma.$transaction(async (t) => {
+    await t.refreshToken.deleteMany({
+      where: {
+        user_id: user.id,
+      },
+    });
+    await t.refreshToken.create({
+      data: {
+        user_id: user.id,
+        token: hashedRefreshToken,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      },
+    });
   });
 
   const userResponse = {
@@ -99,11 +106,13 @@ export const refreshTokenController = async (req: Request, res: Response) => {
     },
   });
   if (!isPresentInDB) {
+    console.log("not found in db");
     throw new ApiError(401, "Invalid Token");
   }
   const isValid = await bcrypt.compare(RefreshToken, isPresentInDB.token);
 
   if (!isValid) {
+    console.log("not valid with db one");
     throw new ApiError(401, "Invalid Token");
   }
   const newAccessToken = generateAccessToken(decoded.userId);
