@@ -112,6 +112,7 @@ function Comment({
               <button
                 type="submit"
                 className="px-4 py-2.5 border border-zinc-600 bg-zinc-800 font-mono text-sm text-zinc-100 hover:border-zinc-400 hover:bg-zinc-700 transition-all min-h-[44px]"
+                disabled={formValue.content.trim().length === 0}
               >
                 reply
               </button>
