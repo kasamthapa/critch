@@ -51,7 +51,7 @@ function CommentForm({
         />
         <button
           type="submit"
-          disabled={content.length === 0}
+          disabled={content.trim().length === 0}
           className="w-full sm:w-auto px-5 py-3 border border-zinc-600 bg-zinc-800 font-mono text-sm text-zinc-100 hover:border-zinc-400 hover:bg-zinc-700 hover:text-white transition-all min-h-[44px] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-600 disabled:hover:bg-zinc-800"
         >
           comment

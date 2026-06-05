@@ -130,7 +130,7 @@ export interface editProjectRequest {
   description: string;
   liveURL: string;
   githubURL: string;
-  tags: string;
+  tags: string[];
 }
 export interface ProjectAuthor {
   username: string;

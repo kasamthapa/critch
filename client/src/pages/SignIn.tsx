@@ -3,12 +3,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type { SignInRequest } from "../types/auth.types";
 import { signIn } from "../api/auth.api";
 import { useAuth } from "../hooks/useAuth";
+import { userSignInSchema } from "../schemas/authSchema";
 
 export function SignIn() {
   const initialValue = { email: "", password: "" };
   const [formValues, setFormValues] = useState(initialValue);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<keyof SignInRequest, string>>
+  >({});
   const navigate = useNavigate();
   const location = useLocation();
   const message = location.state?.message;
@@ -17,12 +21,34 @@ export function SignIn() {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
+
+    if (fieldErrors[name as keyof SignInRequest]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+
+    if (error) {
+      setError("");
+    }
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
+    setFieldErrors({});
+
+    const validation = userSignInSchema.safeParse(formValues);
+    if (!validation.success) {
+      const errorsObj: Partial<Record<keyof SignInRequest, string>> = {};
+      validation.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0] as keyof SignInRequest;
+        errorsObj[fieldName] = issue.message;
+      });
+      setFieldErrors(errorsObj);
+      return;
+    }
+
     setIsSubmitting(true);
-    const payload: SignInRequest = { ...formValues };
+    const payload: SignInRequest = validation.data;
     try {
       const response = await signIn(payload);
       login(response.data);
@@ -63,6 +89,7 @@ export function SignIn() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 sm:gap-6">
+          {/* Email Container Block */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="email"
@@ -77,10 +104,21 @@ export function SignIn() {
               value={formValues.email}
               onChange={handleChange}
               placeholder="you@example.com"
-              className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+              className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none transition-colors font-mono min-h-[44px] ${
+                fieldErrors.email
+                  ? "border-red-500 focus:border-red-400"
+                  : "border-zinc-700 focus:border-zinc-400"
+              }`}
             />
+
+            {fieldErrors.email && (
+              <span className="font-mono text-xs text-red-400 mt-0.5">
+                {fieldErrors.email}
+              </span>
+            )}
           </div>
 
+          {/* Password Container Block */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="password"
@@ -95,11 +133,21 @@ export function SignIn() {
               value={formValues.password}
               onChange={handleChange}
               placeholder="••••••••"
-              className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+              className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none transition-colors font-mono min-h-[44px] ${
+                fieldErrors.password
+                  ? "border-red-500 focus:border-red-400"
+                  : "border-zinc-700 focus:border-zinc-400"
+              }`}
             />
+
+            {fieldErrors.password && (
+              <span className="font-mono text-xs text-red-400 mt-0.5">
+                {fieldErrors.password}
+              </span>
+            )}
           </div>
 
-          {/* Error */}
+          {/* Global API Error Display Box */}
           {error && (
             <div className="flex items-start gap-3 border-l-2 border-red-500 bg-red-950/20 px-4 py-3 text-sm text-red-400">
               <span className="font-mono text-red-500 select-none">✕</span>

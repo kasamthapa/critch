@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CreateReviewRequest } from "../types/review.types";
 import { useParams } from "react-router-dom";
 import { createReview } from "../api/project.api";
+import { reviewSchema } from "../schemas/projectSchema";
 
 function ReviewForm({
   setIsCreateReview,
@@ -13,16 +14,19 @@ function ReviewForm({
   setFlashMessage: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const initialValue = {
-    codeQuality: 0,
-    uiDesign: 0,
-    ideaScore: 0,
-    documentation: 0,
+    codeQuality: 1,
+    uiDesign: 1,
+    ideaScore: 1,
+    documentation: 1,
     comment: "",
   };
 
   const [formValues, setFormValues] = useState(initialValue);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<keyof CreateReviewRequest, string>>
+  >({});
   const { id } = useParams();
   const projectId = Number(id);
 
@@ -34,16 +38,36 @@ function ReviewForm({
       ...prev,
       [name]: name === "comment" ? value : Number(value),
     }));
+    if (fieldErrors[name as keyof CreateReviewRequest]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+
+    if (error) {
+      setError("");
+    }
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!projectId) {
       setError("Project Id undefined");
       return;
     }
+    setError("");
+    setFieldErrors({});
+
+    const validation = reviewSchema.safeParse(formValues);
+    if (!validation.success) {
+      const errorsObj: Partial<Record<keyof CreateReviewRequest, string>> = {};
+      validation.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0] as keyof CreateReviewRequest;
+        errorsObj[fieldName] = issue.message;
+      });
+      setFieldErrors(errorsObj);
+      return;
+    }
     setIsSubmitting(true);
-    const payload: CreateReviewRequest = { ...formValues, projectId };
+    const payload: CreateReviewRequest = { ...validation.data, projectId };
     try {
       const response = await createReview(payload);
       setIsCreateReview(false);
@@ -68,7 +92,7 @@ function ReviewForm({
     <div>
       {/* Submitting */}
       {isSubmitting && (
-        <div className="flex items-center gap-3 py-12 text-sm sm:text-base text-zinc-600">
+        <div className="flex items-center gap-3 py-16 text-sm sm:text-base text-zinc-600">
           <span className="font-mono animate-pulse text-lg">···</span>
           <span>submitting review</span>
         </div>
@@ -78,48 +102,64 @@ function ReviewForm({
         <form onSubmit={handleSubmit} className="flex flex-col gap-6 sm:gap-8">
           {/* Score grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {scores.map(({ id, label, value }) => (
-              <div
-                key={id}
-                className="border border-zinc-800 bg-zinc-900/60 px-4 sm:px-5 py-4 sm:py-5"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <label
-                    htmlFor={id}
-                    className="font-mono text-xs text-zinc-600 uppercase tracking-wider"
-                  >
-                    {label}
-                  </label>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xl sm:text-2xl font-bold text-zinc-100">
-                      {value}
-                    </span>
-                    <span className="font-mono text-xs sm:text-sm text-zinc-600">
-                      /5
-                    </span>
+            {scores.map(({ id, label, value }) => {
+              const hasError = !!fieldErrors[id];
+              return (
+                <div
+                  key={id}
+                  className={`border px-4 sm:px-5 py-4 sm:py-5 transition-colors ${
+                    hasError
+                      ? "border-red-500 bg-red-950/5"
+                      : "border-zinc-800 bg-zinc-900/60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <label
+                      htmlFor={id}
+                      className="font-mono text-xs text-zinc-600 uppercase tracking-wider"
+                    >
+                      {label}
+                    </label>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xl sm:text-2xl font-bold text-zinc-100">
+                        {value}
+                      </span>
+                      <span className="font-mono text-xs sm:text-sm text-zinc-600">
+                        /5
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Progress track */}
-                <div className="relative mb-3 h-0.5 bg-zinc-800">
-                  <div
-                    className="absolute left-0 top-0 h-0.5 bg-amber-500 transition-all"
-                    style={{ width: `${(value / 5) * 100}%` }}
+                  {/* Progress track */}
+                  <div className="relative mb-3 h-0.5 bg-zinc-800">
+                    <div
+                      className={`absolute left-0 top-0 h-0.5 transition-all ${
+                        hasError ? "bg-red-500" : "bg-amber-500"
+                      }`}
+                      style={{ width: `${(value / 5) * 100}%` }}
+                    />
+                  </div>
+
+                  <input
+                    type="range"
+                    min={0}
+                    max={5}
+                    id={id}
+                    name={id}
+                    value={value}
+                    onChange={handleChange}
+                    className={`w-full cursor-pointer ${
+                      hasError ? "accent-red-500" : "accent-amber-500"
+                    }`}
                   />
+                  {fieldErrors[id] && (
+                    <span className="font-mono text-xs text-red-400 mt-2 block">
+                      {fieldErrors[id]}
+                    </span>
+                  )}
                 </div>
-
-                <input
-                  type="range"
-                  min={0}
-                  max={5}
-                  id={id}
-                  name={id}
-                  value={value}
-                  onChange={handleChange}
-                  className="w-full accent-amber-500 cursor-pointer"
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Comment */}
@@ -137,8 +177,17 @@ function ReviewForm({
               value={formValues.comment}
               rows={5}
               placeholder="Write your thoughts about this project..."
-              className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none resize-none focus:border-zinc-400 transition-colors leading-relaxed"
+              className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none resize-none transition-colors leading-relaxed ${
+                fieldErrors.comment
+                  ? "border-red-500 focus:border-red-400"
+                  : "border-zinc-700 focus:border-zinc-400"
+              }`}
             />
+            {fieldErrors.comment && (
+              <span className="font-mono text-xs text-red-400 mt-0.5">
+                {fieldErrors.comment}
+              </span>
+            )}
           </div>
 
           {/* Error */}

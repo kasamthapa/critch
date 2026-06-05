@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { editProject } from "../api/project.api";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { editProjectRequest } from "../types/project.types";
+import { projectEditSchema } from "../schemas/projectSchema";
 
 function ProjectEditPage() {
   const [error, setError] = useState("");
@@ -18,7 +19,9 @@ function ProjectEditPage() {
     githubURL: state?.githubURL || "",
     tags: state?.tags || "",
   });
-
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<keyof editProjectRequest, string>>
+  >({});
   useEffect(() => {
     if (!location.state) {
       navigate(`/projects/${projectId}`);
@@ -31,16 +34,36 @@ function ProjectEditPage() {
   ) {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
+    if (fieldErrors[name as keyof editProjectRequest]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+
+    if (error) {
+      setError("");
+    }
   }
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
+    setFieldErrors({});
+
+    const validation = projectEditSchema.safeParse(formValues);
+    if (!validation.success) {
+      const errorsObj: Partial<Record<keyof editProjectRequest, string>> = {};
+      validation.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0] as keyof editProjectRequest;
+        errorsObj[fieldName] = issue.message;
+      });
+      setFieldErrors(errorsObj);
+      return;
+    }
     if (projectId == undefined) {
       setError("Project id undefined");
       return;
     }
     setIsSubmitting(true);
-    const payload: editProjectRequest = { ...formValues };
+    const payload: editProjectRequest = validation.data;
     try {
       const response = await editProject(payload, projectId);
       navigate(location.state?.from, { state: { message: response.message } });
@@ -99,8 +122,17 @@ function ProjectEditPage() {
                 placeholder="Enter project title"
                 value={formValues.title}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none transition-colors font-mono min-h-[44px] ${
+                  fieldErrors.title
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
+              {fieldErrors.title && (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.title}
+                </span>
+              )}
             </div>
 
             {/* Description */}
@@ -118,8 +150,17 @@ function ProjectEditPage() {
                 placeholder="Enter project description"
                 value={formValues.description}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none resize-none focus:border-zinc-400 transition-colors leading-relaxed"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none resize-none transition-colors leading-relaxed ${
+                  fieldErrors.description
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
+              {fieldErrors.description && (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.description}
+                </span>
+              )}
             </div>
 
             {/* Live URL */}
@@ -137,8 +178,17 @@ function ProjectEditPage() {
                 placeholder="https://yourproject.com"
                 value={formValues.liveURL}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none transition-colors font-mono min-h-[44px] ${
+                  fieldErrors.liveURL
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
+              {fieldErrors.liveURL && (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.liveURL}
+                </span>
+              )}
             </div>
 
             {/* GitHub URL */}
@@ -156,8 +206,17 @@ function ProjectEditPage() {
                 placeholder="https://github.com/user/repo"
                 value={formValues.githubURL}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none transition-colors font-mono min-h-[44px] ${
+                  fieldErrors.githubURL
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
+              {fieldErrors.githubURL && (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.githubURL}
+                </span>
+              )}
             </div>
 
             {/* Tags */}
@@ -175,11 +234,21 @@ function ProjectEditPage() {
                 placeholder="react,typescript,nodejs"
                 value={formValues.tags}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px] ${
+                  fieldErrors.tags
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
-              <p className="font-mono text-xs text-zinc-600">
-                separate tags with commas
-              </p>
+              {fieldErrors.tags ? (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.tags}
+                </span>
+              ) : (
+                <p className="font-mono text-xs text-zinc-600">
+                  separate tags with commas
+                </p>
+              )}
             </div>
 
             {/* Error */}
@@ -192,20 +261,20 @@ function ProjectEditPage() {
               </div>
             )}
 
-            {/* Buttons */}
-            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-2">
+            {/* Buttons - Restoring the cut off footer from your original code */}
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-2">
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="w-full sm:w-auto px-5 py-3 border border-zinc-700 font-mono text-sm text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-all min-h-[44px]"
+                className="px-6 py-3 border border-zinc-700 font-mono text-sm text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-all text-center"
               >
                 cancel
               </button>
               <button
                 type="submit"
-                className="w-full sm:w-auto px-5 py-3 border border-zinc-600 bg-zinc-800 font-mono text-sm text-zinc-100 hover:border-zinc-400 hover:bg-zinc-700 hover:text-white transition-all min-h-[44px]"
+                className="px-6 py-3 border border-zinc-600 bg-zinc-800 font-mono text-sm text-zinc-100 hover:border-zinc-400 hover:bg-zinc-700 hover:text-white transition-all text-center"
               >
-                update project
+                save changes
               </button>
             </div>
           </form>

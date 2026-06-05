@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { createProject } from "../api/project.api";
 import { useNavigate } from "react-router-dom";
+import type { CreateProjectRequest } from "../types/project.types";
+import { projectSchema } from "../schemas/projectSchema";
 
 function ProjectForm() {
   const initialValue = {
@@ -15,6 +17,9 @@ function ProjectForm() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<keyof CreateProjectRequest, string>>
+  >({});
   const navigate = useNavigate();
 
   function handleChange(
@@ -22,6 +27,13 @@ function ProjectForm() {
   ) {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
+    if (fieldErrors[name as keyof CreateProjectRequest]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+
+    if (error) {
+      setError("");
+    }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -31,7 +43,9 @@ function ProjectForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsSubmitting(true);
+    setError("");
+    setFieldErrors({});
+
     const fd = new FormData();
     fd.append("title", formValues.title);
     fd.append("description", formValues.description);
@@ -39,6 +53,17 @@ function ProjectForm() {
     fd.append("githubURL", formValues.githubURL);
     fd.append("tags", formValues.tags);
     if (file) fd.append("screenshot", file);
+    const validation = projectSchema.safeParse(fd);
+    if (!validation.success) {
+      const errorsObj: Partial<Record<keyof CreateProjectRequest, string>> = {};
+      validation.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0] as keyof CreateProjectRequest;
+        errorsObj[fieldName] = issue.message;
+      });
+      setFieldErrors(errorsObj);
+      return;
+    }
+    setIsSubmitting(true);
     try {
       const response = await createProject(fd);
       navigate(`/projects/${response.data.id}`, {
@@ -99,8 +124,17 @@ function ProjectForm() {
                 placeholder="Enter project title"
                 value={formValues.title}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none transition-colors font-mono min-h-[44px] ${
+                  fieldErrors.title
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
+              {fieldErrors.title && (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.title}
+                </span>
+              )}
             </div>
 
             {/* Description */}
@@ -118,8 +152,17 @@ function ProjectForm() {
                 placeholder="Describe your project..."
                 value={formValues.description}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none resize-none focus:border-zinc-400 transition-colors leading-relaxed"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none resize-none transition-colors leading-relaxed ${
+                  fieldErrors.description
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
+              {fieldErrors.description && (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.description}
+                </span>
+              )}
             </div>
 
             {/* Live URL */}
@@ -137,8 +180,17 @@ function ProjectForm() {
                 placeholder="https://yourproject.com"
                 value={formValues.liveURL}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none transition-colors font-mono min-h-[44px] ${
+                  fieldErrors.liveURL
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
+              {fieldErrors.liveURL && (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.liveURL}
+                </span>
+              )}
             </div>
 
             {/* GitHub URL */}
@@ -156,8 +208,17 @@ function ProjectForm() {
                 placeholder="https://github.com/user/repo"
                 value={formValues.githubURL}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none transition-colors font-mono min-h-[44px] ${
+                  fieldErrors.githubURL
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
+              {fieldErrors.githubURL && (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.githubURL}
+                </span>
+              )}
             </div>
 
             {/* Tags */}
@@ -175,11 +236,21 @@ function ProjectForm() {
                 placeholder="react,typescript,nodejs"
                 value={formValues.tags}
                 onChange={handleChange}
-                className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px]"
+                className={`w-full border bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-zinc-400 transition-colors font-mono min-h-[44px] ${
+                  fieldErrors.tags
+                    ? "border-red-500 focus:border-red-400"
+                    : "border-zinc-700 focus:border-zinc-400"
+                }`}
               />
-              <p className="font-mono text-xs text-zinc-600">
-                separate tags with commas
-              </p>
+              {fieldErrors.tags ? (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.tags}
+                </span>
+              ) : (
+                <p className="font-mono text-xs text-zinc-600">
+                  separate tags with commas
+                </p>
+              )}
             </div>
 
             {/* Screenshot Upload */}
@@ -192,68 +263,49 @@ function ProjectForm() {
               </label>
               <label
                 htmlFor="screenshot"
-                className={`flex flex-col items-center justify-center gap-3 border border-dashed px-6 py-8 sm:py-10 cursor-pointer transition-colors ${
-                  file
-                    ? "border-amber-500/40 bg-amber-500/5"
-                    : "border-zinc-700 bg-zinc-900/40 hover:border-zinc-500 hover:bg-zinc-900"
+                className={`flex flex-col items-center justify-center gap-3 border border-dashed bg-zinc-900/50 px-6 py-8 text-center cursor-pointer transition-colors hover:bg-zinc-900 ${
+                  fieldErrors.screenshot
+                    ? "border-red-500 text-red-400"
+                    : "border-zinc-700 text-zinc-400 hover:border-zinc-500"
                 }`}
               >
-                <span className="font-mono text-2xl text-zinc-600">↑</span>
-                {file ? (
-                  <div className="text-center">
-                    <p className="font-mono text-sm text-amber-400">
-                      {file.name}
-                    </p>
-                    <p className="font-mono text-xs text-zinc-600 mt-1">
-                      click to change
-                    </p>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <p className="font-mono text-sm text-zinc-400">
-                      click to upload screenshot
-                    </p>
-                    <p className="font-mono text-xs text-zinc-600 mt-1">
-                      png, jpg, webp
-                    </p>
-                  </div>
-                )}
                 <input
                   type="file"
-                  name="screenshot"
                   id="screenshot"
+                  name="screenshot"
+                  accept="image/*"
                   onChange={handleFileChange}
-                  className="sr-only"
+                  className="hidden"
                 />
+                <span className="font-mono text-xs uppercase tracking-wider bg-zinc-800 border border-zinc-700 px-3 py-1.5 text-zinc-300">
+                  {file ? "Choose Different Image" : "Select File"}
+                </span>
+                <span className="text-xs text-zinc-500 truncate max-w-xs font-mono">
+                  {file ? file.name : "no file selected (jpg, png, webp)"}
+                </span>
               </label>
+              {fieldErrors.screenshot && (
+                <span className="font-mono text-xs text-red-400 mt-0.5">
+                  {fieldErrors.screenshot}
+                </span>
+              )}
             </div>
 
             {/* Error */}
             {error && (
-              <div className="flex items-start gap-3 border-l-2 border-red-500 bg-red-950/20 px-4 py-3 text-sm sm:text-base text-red-400">
-                <span className="font-mono text-red-500 select-none mt-0.5">
-                  ✕
-                </span>
+              <div className="flex items-start gap-3 border-l-2 border-red-500 bg-red-950/20 px-4 py-3 text-sm text-red-400">
+                <span className="font-mono text-red-500 select-none">✕</span>
                 {error}
               </div>
             )}
 
-            {/* Buttons */}
-            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="w-full sm:w-auto px-5 py-3 border border-zinc-700 font-mono text-sm text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-all min-h-[44px]"
-              >
-                cancel
-              </button>
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-5 py-3 border border-zinc-600 bg-zinc-800 font-mono text-sm text-zinc-100 hover:border-zinc-400 hover:bg-zinc-700 hover:text-white transition-all min-h-[44px]"
-              >
-                create project
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3 border border-zinc-600 bg-zinc-800 font-mono text-sm text-zinc-100 hover:border-zinc-400 hover:bg-zinc-700 hover:text-white transition-all min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              create project
+            </button>
           </form>
         )}
       </div>
