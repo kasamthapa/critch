@@ -52,7 +52,16 @@ function ProjectForm() {
     fd.append("liveURL", formValues.liveURL);
     fd.append("githubURL", formValues.githubURL);
     fd.append("tags", formValues.tags);
-    if (file) fd.append("screenshot", file);
+
+    if (file) {
+      const fileType = file.type;
+      if (!fileType.startsWith("image/")) {
+        setFieldErrors({ screenshot: "Only images are allowd" });
+        return;
+      } else {
+        fd.append("screenshot", file);
+      }
+    }
     const validation = projectSchema.safeParse(fd);
     if (!validation.success) {
       const errorsObj: Partial<Record<keyof CreateProjectRequest, string>> = {};
