@@ -12,6 +12,7 @@ import { generateAccessToken, generateRefreshToken } from "../utils/tokenGen";
 import { JwtPayload } from "../types/jwtPayload";
 import { CustomRequest } from "../types/customRequest";
 import { uploadOnCloudinary } from "../utils/cloudinary";
+import strict from "node:assert/strict";
 
 export const userSignupController = async (req: Request, res: Response) => {
   const { username, email, password } = userSignupSchema.parse(req.body);
@@ -75,8 +76,8 @@ export const userSignInController = async (req: Request, res: Response) => {
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
     path: "/",
   });
 
