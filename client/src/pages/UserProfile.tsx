@@ -81,7 +81,22 @@ function UserProfile() {
             <span>loading profile</span>
           </div>
         )}
-
+        {!isLoading && !userProfile && error && (
+          <div className="max-w-6xl mx-auto px-4 py-24 text-center">
+            <p className="font-mono text-xs text-zinc-600 uppercase tracking-widest mb-4">
+              404
+            </p>
+            <h1 className="text-3xl font-bold text-zinc-100 mb-3">
+              user not found
+            </h1>
+            <button
+              onClick={() => navigate("/")}
+              className="border border-zinc-700 px-5 py-3 font-mono text-sm text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-all"
+            >
+              back to home
+            </button>
+          </div>
+        )}
         {!isLoading && userProfile && (
           <div className="flex flex-col gap-6 sm:gap-8">
             {/* ── Profile header ── */}
