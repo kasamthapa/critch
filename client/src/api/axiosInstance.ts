@@ -22,7 +22,10 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401) {
+    if (
+      error.response?.status === 401 &&
+      originalRequest.url !== "/auth/signin"
+    ) {
       if (originalRequest.url === "/auth/refresh") {
         window.location.href = "/signin";
         return;
@@ -34,7 +37,7 @@ api.interceptors.response.use(
           { withCredentials: true },
         );
         const newToken = response.data.data.newAccessToken;
-
+        localStorage.setItem("token", newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
         const res = await api(originalRequest);
