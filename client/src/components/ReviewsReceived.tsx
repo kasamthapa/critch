@@ -5,7 +5,7 @@ function ReviewsReceived({ projects }: { projects: ProjectWithReviews[] }) {
   const [expandedProject, setExpandedProject] = useState<
     Record<number, boolean>
   >({});
-
+  const TotalReviews = projects.flatMap((p) => p.reviews).length;
   const ScoreCard = ({
     label,
     value,
@@ -77,7 +77,7 @@ function ReviewsReceived({ projects }: { projects: ProjectWithReviews[] }) {
   return (
     <div>
       {/* Empty state */}
-      {projects.length === 0 && (
+      {projects.length === 0 && TotalReviews === 0 && (
         <div className="border border-zinc-800 border-dashed px-6 sm:px-8 py-16 sm:py-20 text-center">
           <p className="font-mono text-xs sm:text-sm text-zinc-600 mb-2">
             0 reviews
