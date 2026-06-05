@@ -123,7 +123,23 @@ function Project() {
           <span>loading project</span>
         </div>
       )}
-
+      {!isLoading && !project && error && (
+        <div className="max-w-6xl mx-auto px-4 py-24 text-center">
+          <p className="font-mono text-xs text-zinc-600 uppercase tracking-widest mb-4">
+            404
+          </p>
+          <h1 className="text-3xl font-bold text-zinc-100 mb-3">
+            Project not found
+          </h1>
+          <p className="text-zinc-500 mb-8">{error}</p>
+          <button
+            onClick={() => navigate("/")}
+            className="border border-zinc-700 px-5 py-3 font-mono text-sm text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-all"
+          >
+            back to projects
+          </button>
+        </div>
+      )}
       {!isLoading && project && (
         <div
           className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
