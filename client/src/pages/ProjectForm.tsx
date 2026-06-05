@@ -62,7 +62,10 @@ function ProjectForm() {
         fd.append("screenshot", file);
       }
     }
-    const validation = projectSchema.safeParse(fd);
+    const validation = projectSchema.safeParse({
+      ...formValues,
+      screenshot: file,
+    });
     if (!validation.success) {
       const errorsObj: Partial<Record<keyof CreateProjectRequest, string>> = {};
       validation.error.issues.forEach((issue) => {
