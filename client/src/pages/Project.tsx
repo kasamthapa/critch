@@ -434,11 +434,15 @@ function Project() {
             {!openComments && comments.length > 0 && (
               <div className="border border-zinc-800 bg-zinc-900/30 p-4 sm:p-5">
                 <div className="flex items-center gap-3 mb-3">
-                  <img
-                    src={comments[0].user.avatarURL}
-                    alt="userProfile"
-                    className="w-8 h-8 object-cover border border-zinc-700 shrink-0"
-                  />
+                  {comments[0].user.avatarURL ? (
+                    <img
+                      src={comments[0].user.avatarURL}
+                      alt="userProfile"
+                      className="w-9 h-9 object-cover border border-zinc-700 shrink-0"
+                    />
+                  ) : (
+                    <FaUser className="w-9 h-9 object-cover border border-zinc-700 shrink-0" />
+                  )}
                   <p className="font-mono text-sm text-zinc-300">
                     @{comments[0].user.username}
                   </p>
