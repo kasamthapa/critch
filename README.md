@@ -8,6 +8,10 @@ the higher your reputation grows.
 
 > GitHub (for showing projects) + Product Hunt (for discovery) + Code Review culture (for structured feedback)
 
+## Live Demo
+
+[https://critch-neon.vercel.app](https://critch-neon.vercel.app)
+
 ## Tech Stack
 
 - **Backend:** Node.js, Express, TypeScript, PostgreSQL, Prisma
@@ -23,6 +27,12 @@ the higher your reputation grows.
 - **Reputation System** — Score calculated from reviews received and given
 - **User Profiles** — Public profile with reputation score and portfolio
 - **Dashboard** — Manage your projects and see all reviews
+
+## Known Limitations
+
+Refresh token flow requires a custom domain in production due to browser
+cross-origin cookie restrictions. Users will need to re-login after 15 minutes
+on the demo deployment.
 
 ## Running Locally
 
