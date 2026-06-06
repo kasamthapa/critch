@@ -3,6 +3,7 @@ import type { CommentType, CommentAuthor } from "../types/comment.types";
 import { createComment } from "../api/project.api";
 import { SlArrowDown } from "react-icons/sl";
 import { useAuth } from "../hooks/useAuth";
+import { FaUser } from "react-icons/fa";
 
 function Comment({
   author,
@@ -58,6 +59,15 @@ function Comment({
             alt="userProfile"
             className="w-8 h-8 sm:w-9 sm:h-9 object-cover border border-zinc-700 shrink-0"
           />
+          {author.avatarURL ? (
+            <img
+              src={author.avatarURL}
+              alt="userProfile"
+              className="w-9 h-9 object-cover border border-zinc-700 shrink-0"
+            />
+          ) : (
+            <FaUser className="w-9 h-9 object-cover border border-zinc-700 shrink-0" />
+          )}
           <div>
             <p className="font-mono text-sm text-zinc-200">
               @{author.username}
