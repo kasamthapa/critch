@@ -54,11 +54,6 @@ function Comment({
       <div className="border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5">
         {/* Author */}
         <div className="flex items-center gap-3">
-          <img
-            src={author.avatarURL}
-            alt="userProfile"
-            className="w-8 h-8 sm:w-9 sm:h-9 object-cover border border-zinc-700 shrink-0"
-          />
           {author.avatarURL ? (
             <img
               src={author.avatarURL}
