@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { bioUpdate, getUserProfile } from "../api/user.api";
 import { FaCamera } from "react-icons/fa";
@@ -14,6 +14,10 @@ function UserProfile() {
   const [isAvatarOpen, setIsAvatarOpen] = useState<boolean>(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [bio, setBio] = useState("");
+  const [showFullBio, setShowFullBio] = useState(false);
+  const [bioOverflows, setBioOverflows] = useState(false);
+  const bioRef = useRef<HTMLParagraphElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { username } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -41,6 +45,23 @@ function UserProfile() {
   useEffect(() => {
     if (userProfile) setBio(userProfile.bio);
   }, [userProfile]);
+
+  // Auto-grow the editable textarea so it never scrolls
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (el) {
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    }
+  }, [bio]);
+
+  // Detect whether the read-only bio overflows the clamp (for "see more")
+  useEffect(() => {
+    const el = bioRef.current;
+    if (el && !showFullBio) {
+      setBioOverflows(el.scrollHeight > el.clientHeight + 1);
+    }
+  }, [bio, showFullBio]);
 
   function handleProjectClick(id: number) {
     navigate(`/projects/${id}`);
@@ -190,20 +211,36 @@ function UserProfile() {
               {user?.username === username ? (
                 <form id="bioForm" onSubmit={handleSubmit}>
                   <textarea
+                    ref={textareaRef}
                     name="bio"
                     value={bio}
                     onChange={handleChange}
                     rows={5}
                     placeholder="Write something about yourself..."
-                    className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none resize-none focus:border-zinc-400 transition-colors leading-relaxed"
+                    className="w-full border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm sm:text-base text-zinc-200 placeholder:text-zinc-600 outline-none resize-none overflow-hidden focus:border-zinc-400 transition-colors leading-relaxed min-h-[120px]"
                   />
                 </form>
               ) : (
-                <div className="border-l border-zinc-700 pl-4 sm:pl-5 min-h-[80px] flex items-start py-1">
+                <div className="border-l border-zinc-700 pl-4 sm:pl-5 min-h-[80px] flex flex-col items-start py-1">
                   {bio ? (
-                    <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
-                      {bio}
-                    </p>
+                    <>
+                      <p
+                        ref={bioRef}
+                        className={`text-sm sm:text-base text-zinc-400 leading-relaxed whitespace-pre-line ${
+                          showFullBio ? "" : "line-clamp-4"
+                        }`}
+                      >
+                        {bio}
+                      </p>
+                      {bioOverflows && (
+                        <button
+                          onClick={() => setShowFullBio((v) => !v)}
+                          className="mt-2 font-mono text-xs text-zinc-500 hover:text-amber-400 transition-colors"
+                        >
+                          {showFullBio ? "see less" : "see more ···"}
+                        </button>
+                      )}
+                    </>
                   ) : (
                     <p className="font-mono text-sm text-zinc-600">
                       no bio added yet.
