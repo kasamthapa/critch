@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import type { AuthData } from "../types/auth.types";
 import { AuthContext } from "./AuthContext";
+import type { UserSummary } from "../types/user.types";
 
 function getInitialAuth(): AuthData | null {
   const token = localStorage.getItem("token");
@@ -23,6 +24,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("token");
     setAuth(null);
   }
+  function updateUser(updates: Partial<UserSummary>) {
+    setAuth((prev) => {
+      if (!prev) return null;
+      const updatedUser = { ...prev.user, ...updates };
+      localStorage.setItem("user", JSON.stringify(updateUser));
+      return { ...prev, user: updatedUser };
+    });
+  }
   return (
     <AuthContext.Provider
       value={{
@@ -30,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         accesstoken: auth?.accesstoken ?? null,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

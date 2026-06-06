@@ -22,6 +22,7 @@ export interface AuthContextType {
 
   login: (data: AuthData) => void;
   logout: () => void;
+  updateUser: (data: Partial<UserSummary>) => void;
 }
 export type SignInResponse = ApiResponse<AuthData>;
 export type SignUpResponse = ApiResponse<null>;

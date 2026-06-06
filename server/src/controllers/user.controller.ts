@@ -219,9 +219,11 @@ export const avatarUploadController = async (
       avatarURL: avatar.url,
     },
   });
-  res
-    .status(200)
-    .json(new ApiResponse(200, "avatar uploaded  successfully", {}));
+  res.status(200).json(
+    new ApiResponse(200, "avatar uploaded  successfully", {
+      avatarUrl: avatar.url,
+    }),
+  );
 };
 
 export const bioUpdateController = async (

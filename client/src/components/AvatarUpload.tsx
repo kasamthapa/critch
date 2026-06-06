@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { avatarUpload } from "../api/user.api";
+import { useAuth } from "../hooks/useAuth";
 
 function AvatarUpload({
   setIsOpen,
@@ -13,7 +14,7 @@ function AvatarUpload({
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isUploading, setIsUploading] = useState(false);
-
+  const { updateUser } = useAuth();
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
     setFile(file);
@@ -36,6 +37,8 @@ function AvatarUpload({
         setRefreshKey((prev) => prev + 1);
         setIsOpen(false);
       }, 1500);
+      updateUser({ avatarUrl: response.data.avatarUrl });
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.response?.data?.message);

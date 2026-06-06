@@ -21,4 +21,4 @@ export interface User extends UserSummary {
 }
 
 export type getUserProfileResponse = ApiResponse<User>;
-export type avatarUploadResponse = ApiResponse<null>;
+export type avatarUploadResponse = ApiResponse<{ avatarUrl: string }>;
