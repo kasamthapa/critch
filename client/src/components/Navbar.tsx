@@ -27,9 +27,9 @@ function Navbar() {
               <img
                 src={logo}
                 alt="logo"
-                className="w-6 h-6 sm:w-7 sm:h-7 object-contain opacity-90"
+                className="w-6 h-6 sm:w-7 sm:h-7 object-contain opacity-90 block"
               />
-              <span className="font-mono text-sm sm:text-base font-semibold text-zinc-100 tracking-tight">
+              <span className="font-mono text-sm sm:text-base font-semibold text-zinc-100 tracking-tight leading-none">
                 critch
               </span>
             </Link>
