@@ -4,14 +4,19 @@ import { AuthContext } from "./AuthContext";
 import type { UserSummary } from "../types/user.types";
 
 function getInitialAuth(): AuthData | null {
-  const token = localStorage.getItem("token");
-  const user = localStorage.getItem("user");
-  if (token && user) {
-    return { accesstoken: token, user: JSON.parse(user) };
+  try {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (token && user) {
+      return { accesstoken: token, user: JSON.parse(user) };
+    }
+    return null;
+  } catch {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    return null;
   }
-  return null;
 }
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [auth, setAuth] = useState<AuthData | null>(getInitialAuth);
   function login({ user, accesstoken }: AuthData) {
