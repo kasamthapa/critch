@@ -217,7 +217,7 @@ export function Home() {
               0 results
             </p>
             <p className="text-sm sm:text-base text-zinc-500">
-              No projects match this filter.
+              No projects found.
             </p>
           </div>
         )}
