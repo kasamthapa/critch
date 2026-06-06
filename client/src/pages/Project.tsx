@@ -7,7 +7,7 @@ import Comment from "../components/Comment";
 import ReviewForm from "../components/ReviewForm";
 import { useAuth } from "../hooks/useAuth";
 import CommentForm from "../components/CommentForm";
-import { FaRegComment } from "react-icons/fa";
+import { FaRegComment, FaUser } from "react-icons/fa";
 import { SlOptions } from "react-icons/sl";
 
 function Project() {
@@ -377,11 +377,15 @@ function Project() {
               {project.reviews.map((r) => (
                 <div key={r.id} className="py-6 sm:py-7">
                   <div className="flex items-center gap-3 mb-4 sm:mb-5">
-                    <img
-                      src={r.user.avatarURL}
-                      alt="userProfile"
-                      className="w-9 h-9 object-cover border border-zinc-700 shrink-0"
-                    />
+                    {r.user.avatarURL ? (
+                      <img
+                        src={r.user.avatarURL}
+                        alt="userProfile"
+                        className="w-9 h-9 object-cover border border-zinc-700 shrink-0"
+                      />
+                    ) : (
+                      <FaUser className="w-9 h-9 object-cover border border-zinc-700 shrink-0" />
+                    )}
                     <div>
                       <p className="font-mono text-sm text-zinc-300">
                         @{r.user.username}
